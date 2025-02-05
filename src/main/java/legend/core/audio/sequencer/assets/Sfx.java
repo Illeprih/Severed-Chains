@@ -10,6 +10,7 @@ import java.util.List;
 public final class Sfx {
   private float volume;
 
+  private final short[][] breathControls;
   private final byte[] velocityRamp = new byte[0x80];
   private final Channel[] channels = new Channel[24];
   private final Command[][][] sequences;
@@ -36,5 +37,27 @@ public final class Sfx {
     }
 
     this.sequences = SequenceBuilder.process(sshd.slice(subfileOffsets[3]), this.channels);
+
+    if(subfileOffsets[2] == -1) {
+      this.breathControls = new short[0][];
+    } else {
+      this.breathControls = new short[sshd.readUByte(subfileOffsets[2] + 1)][];
+    }
+
+    for(int i = 0; i < this.breathControls.length; i++) {
+      final int relativeOffset = sshd.readShort(2 + i * 2 + subfileOffsets[2]);
+
+      if(relativeOffset != -1) {
+        this.breathControls[i] = new short[63];
+        final int startingPosition = subfileOffsets[2] + relativeOffset;
+        for(int b = 0; b < 60; b++) {
+          this.breathControls[i][b + 1] = (short)(sshd.readUByte(startingPosition + b) - 0x80);
+        }
+
+        this.breathControls[i][0] = this.breathControls[i][59];
+        this.breathControls[i][61] = this.breathControls[i][2];
+        this.breathControls[i][62] = this.breathControls[i][3];
+      }
+    }
   }
 }

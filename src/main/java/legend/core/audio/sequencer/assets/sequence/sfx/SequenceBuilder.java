@@ -45,9 +45,13 @@ public final class SequenceBuilder {
     return switch(controlType) {
       case 0x1 -> new ModulationChange(this.data.readUByte(this.position++), this.channels[this.data.readUByte(this.position++)], this.data.readUByte(this.position++), this.readDeltaTime());
       case 0x2 -> new BreathChange(this.data.readUByte(this.position++), this.channels[this.data.readUByte(this.position++)], this.data.readUByte(this.position++), this.readDeltaTime());
+      // TODO DataEntry?
       case 0x7 -> new VolumeChange(this.data.readUByte(this.position++), this.data.readUByte(this.position++), this.channels[this.data.readUByte(this.position++)], this.data.readUByte(this.position++), this.readDeltaTime());
       case 0xa -> new PanChange(this.data.readUByte(this.position++), this.data.readUByte(this.position++), this.channels[this.data.readUByte(this.position++)], this.data.readUByte(this.position++), this.readDeltaTime());
       case 0x41 -> new PortamentoChange(this.data.readUByte(this.position++), this.data.readUByte(this.position++), this.channels[this.data.readUByte(this.position++)], this.data.readUByte(this.position++), this.readDeltaTime());
+      // TODO 0x60 repeat flag?
+      // TODO 0x62 LSB
+      // TODO 0x63 MSB
       default -> throw new RuntimeException("Unexpected control change type 0x%x".formatted(controlType));
     };
   }
