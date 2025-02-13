@@ -25,6 +25,7 @@ import legend.game.Main;
 import legend.game.Scus94491BpeSegment_8002;
 import legend.game.fmv.Fmv;
 import legend.game.input.Input;
+import legend.game.inventory.ItemIcon;
 import legend.game.modding.coremod.CoreMod;
 import legend.game.saves.ConfigCollection;
 import legend.game.saves.ConfigStorage;
@@ -38,6 +39,7 @@ import legend.game.saves.serializers.V4Serializer;
 import legend.game.scripting.ScriptManager;
 import legend.game.sound.Sequencer;
 import legend.game.unpacker.FileData;
+import legend.game.unpacker.Loader;
 import legend.game.unpacker.Unpacker;
 import legend.game.unpacker.UnpackerException;
 import legend.game.unpacker.UnpackerStoppedRuntimeException;
@@ -279,7 +281,7 @@ public final class GameEngine {
 
     SPU.init();
     RENDERER.init();
-    RENDERER.events().onShutdown(Unpacker::shutdownLoader);
+    RENDERER.events().onShutdown(Loader::shutdownLoader);
     Input.init();
     GPU.init();
 
@@ -322,6 +324,7 @@ public final class GameEngine {
 
   public static void bootRegistries() {
     REGISTRY_ACCESS.initializeRemaining();
+    ItemIcon.loadIconMap();
   }
 
   private static void loadXpTables() throws IOException {
