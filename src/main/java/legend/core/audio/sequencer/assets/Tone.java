@@ -1,9 +1,8 @@
 package legend.core.audio.sequencer.assets;
 
-import legend.core.audio.SampleRate;
 import legend.game.unpacker.FileData;
 
-public final class InstrumentLayer {
+public final class Tone {
   private final int keyRangeMinimum;
   private final int keyRangeMaximum;
   private final int keyRoot;
@@ -20,19 +19,19 @@ public final class InstrumentLayer {
   // Flags
   private final boolean highPriority;
   private final boolean noise;
-  private final boolean pitchBendMultiplierFromInstrument;
+  private final boolean pitchBendMultiplierFromProgram;
   private final boolean modulation;
-  private final boolean breathControlIndexFromInstrument;
+  private final boolean breathControlIndexFromProgram;
   private final boolean reverb;
 
 
-  InstrumentLayer(final FileData data, final SoundBank soundBank, final SampleRate sampleRate) {
+  Tone(final FileData data, final SoundBank soundBank) {
     this.keyRangeMinimum = data.readUByte(0x00);
     this.keyRangeMaximum = data.readUByte(0x01);
     this.keyRoot = data.readUByte(0x02);
     this.finePitch = data.readByte(0x03) * 8;
     this.soundBankEntry = soundBank.getEntry(data.readUShort(0x04) * 8);
-    this.adsr = AdsrPhase.getPhases(data.readUShort(0x06), data.readUShort(0x08), sampleRate);
+    this.adsr = AdsrPhase.getPhases(data.readUShort(0x06), data.readUShort(0x08));
     this.lockedVolume = data.readUByte(0x0a);
     this.volume = data.readUByte(0x0b) / 128.0f;
     this.pan = data.readUByte(0x0c);
@@ -42,9 +41,9 @@ public final class InstrumentLayer {
     final int flags = data.readUByte(0x0f);
     this.highPriority = (flags & 0x01) != 0;
     this.noise = (flags & 0x02) != 0;
-    this.pitchBendMultiplierFromInstrument = (flags & 0x10) != 0;
+    this.pitchBendMultiplierFromProgram = (flags & 0x10) != 0;
     this.modulation = (flags & 0x20) != 0;
-    this.breathControlIndexFromInstrument = (flags & 0x40) != 0;
+    this.breathControlIndexFromProgram = (flags & 0x40) != 0;
     this.reverb = (flags & 0x80) != 0;
   }
 
@@ -96,25 +95,19 @@ public final class InstrumentLayer {
     return this.noise;
   }
 
-  public boolean isPitchBendMultiplierFromInstrument() {
-    return this.pitchBendMultiplierFromInstrument;
+  public boolean isPitchBendMultiplierFromProgram() {
+    return this.pitchBendMultiplierFromProgram;
   }
 
   public boolean isModulation() {
     return this.modulation;
   }
 
-  public boolean isBreathControlIndexFromInstrument() {
-    return this.breathControlIndexFromInstrument;
+  public boolean isBreathControlIndexFromProgram() {
+    return this.breathControlIndexFromProgram;
   }
 
   public boolean isReverb() {
     return this.reverb;
-  }
-
-  void changeSampleRate(final SampleRate sampleRate) {
-    for(final AdsrPhase phase : this.adsr) {
-      phase.changeSampleRate(sampleRate);
-    }
   }
 }

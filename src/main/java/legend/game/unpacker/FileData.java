@@ -195,6 +195,11 @@ public class FileData {
     offset.add(4);
   }
 
+  public long readLong(final int offset) {
+    this.checkBounds(offset, 8);
+    return MathHelper.get(this.data, this.offset + offset, 4);
+  }
+
   public int readVarInt(int offset) {
     int tmp;
     if((tmp = this.readByte(offset++)) >= 0) {

@@ -1,8 +1,6 @@
 package legend.core.audio.sequencer.assets;
 
-import legend.core.audio.SampleRate;
-
-import static legend.core.audio.AudioThread.BASE_SAMPLE_RATE;
+import static legend.core.audio.Constants.SAMPLE_RATE_RATIO;
 
 public final class AdsrPhase {
   private final int target;
@@ -15,7 +13,7 @@ public final class AdsrPhase {
   private int adsrCounter;
   private final int adsrStep;
 
-  AdsrPhase(final int target, final int shift, final int step, final boolean isDecreasing, final boolean isExponential, final SampleRate sampleRate) {
+  AdsrPhase(final int target, final int shift, final int step, final boolean isDecreasing, final boolean isExponential) {
     this.target = target;
     this.isDecreasing = isDecreasing;
     this.isExponential = isExponential;
@@ -23,15 +21,11 @@ public final class AdsrPhase {
     this.shift = shift;
 
     this.adsrStep = step << Math.max(0, 11 - shift);
-    this.adsrCounter = calculateCounter(shift, sampleRate);
+    this.adsrCounter = calculateCounter(shift);
   }
 
-  public void changeSampleRate(final SampleRate sampleRate) {
-    this.adsrCounter = calculateCounter(this.shift, sampleRate);
-  }
-
-  private static int calculateCounter(final int shift, final SampleRate sampleRate) {
-    return (int)Math.round((1 << Math.min(30, 41 - shift)) * (BASE_SAMPLE_RATE / (double)sampleRate.value));
+  private static int calculateCounter(final int shift) {
+    return (int)Math.round((1 << Math.min(30, 41 - shift)) * SAMPLE_RATE_RATIO);
   }
 
   public int getTarget() {
@@ -53,7 +47,7 @@ public final class AdsrPhase {
     return this.adsrCounter;
   }
 
-  static AdsrPhase[] getPhases(final int lo, final int hi, final SampleRate sampleRate) {
+  static AdsrPhase[] getPhases(final int lo, final int hi) {
     final AdsrPhase[] phases = new AdsrPhase[4];
 
     //Attack
@@ -62,8 +56,7 @@ public final class AdsrPhase {
       (lo >> 10) & 0x1f,
       7 - ((lo >> 8) & 0x03),
       false,
-      ((lo >> 15) & 0x01) != 0,
-      sampleRate
+      ((lo >> 15) & 0x01) != 0
     );
 
     //Decay
@@ -72,8 +65,7 @@ public final class AdsrPhase {
       (lo >> 4) & 0x0f,
       -8,
       true,
-      true,
-      sampleRate
+      true
     );
 
     //Sustain
@@ -85,8 +77,7 @@ public final class AdsrPhase {
       (hi >> 8) & 0x1f,
       sustainDecreasing ? -8 + sustainStep : 7 - sustainStep,
       sustainDecreasing,
-      ((hi >> 15) & 0x01) != 0,
-      sampleRate
+      ((hi >> 15) & 0x01) != 0
     );
 
     //Release
@@ -95,8 +86,7 @@ public final class AdsrPhase {
       hi & 0x1f,
       -8,
       true,
-      ((hi >> 5) & 0x01) != 0,
-      sampleRate
+      ((hi >> 5) & 0x01) != 0
     );
 
 

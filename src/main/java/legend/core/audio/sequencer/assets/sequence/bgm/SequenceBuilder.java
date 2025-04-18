@@ -3,6 +3,7 @@ package legend.core.audio.sequencer.assets.sequence.bgm;
 import legend.core.audio.sequencer.assets.Channel;
 import legend.core.audio.sequencer.assets.sequence.Command;
 import legend.game.unpacker.FileData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ public final class SequenceBuilder {
   private int previousEvent;
   private final FileData data;
   private final Channel[] channels;
+
   private SequenceBuilder(final FileData data, final Channel[] channels) {
     this.data = data;
     this.channels = channels;
@@ -20,20 +22,21 @@ public final class SequenceBuilder {
 
   private int readDeltaTime() {
     int deltaTime = 0;
-
-    while(true) {
+    for(int i = 0; i < 4; i++) {
       final int part = this.data.readUByte(this.position++);
 
       deltaTime <<= 7;
       deltaTime |= part & 0x7f;
 
       if((part & 0x80) == 0) {
-        return deltaTime;
+        break;
       }
     }
+
+    return deltaTime;
   }
 
-  private Command keyOff(final int channelIndex) {
+  private @NotNull KeyOff keyOff(final int channelIndex) {
     final int note = this.data.readUByte(this.position++);
     this.position++;
     final int deltaTime = this.readDeltaTime();
@@ -41,15 +44,19 @@ public final class SequenceBuilder {
     return new KeyOff(this.channels[channelIndex], note, deltaTime);
   }
 
-  private Command keyOn(final int channelIndex) {
+  private @NotNull Command keyOn(final int channelIndex) {
     final int note = this.data.readUByte(this.position++);
     final int velocity = this.data.readUByte(this.position++);
     final int deltaTime = this.readDeltaTime();
 
+    if(velocity == 0) {
+      return new KeyOff(this.channels[channelIndex], note, deltaTime);
+    }
+
     return new KeyOn(this.channels[channelIndex], note, velocity, deltaTime);
   }
 
-  private Command controlChange(final int channelIndex) {
+  private @NotNull Command controlChange(final int channelIndex) {
     final int commandType = this.data.readUByte(this.position++);
 
     return switch(commandType) {
@@ -64,15 +71,15 @@ public final class SequenceBuilder {
     };
   }
 
-  private Command programChange(final int channelIndex) {
+  private @NotNull ProgramChange programChange(final int channelIndex) {
     return new ProgramChange(this.channels[channelIndex], this.data.readUByte(this.position++), this.readDeltaTime());
   }
 
-  private Command pitchBend(final int channelIndex) {
+  private @NotNull PitchBendChange pitchBend(final int channelIndex) {
     return new PitchBendChange(this.channels[channelIndex], this.data.readUByte(this.position++), this.readDeltaTime());
   }
 
-  private Command meta() {
+  private @NotNull Command meta() {
     final int metaType = this.data.readUByte(this.position++);
 
     switch(metaType) {
@@ -86,7 +93,7 @@ public final class SequenceBuilder {
     }
   }
 
-  private Command getCommand(final int event) {
+  private @NotNull Command getCommand(final int event) {
     return switch (event & 0xF0) {
       case 0x80 -> this.keyOff(event & 0x0f);
       case 0x90 -> this.keyOn(event & 0x0f);

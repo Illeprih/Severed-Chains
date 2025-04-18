@@ -2,7 +2,6 @@ package legend.core.spu;
 
 import legend.core.MathHelper;
 import legend.core.audio.GenericSource;
-import legend.core.audio.SampleRate;
 import legend.game.modding.coremod.CoreMod;
 import legend.game.sound.ReverbConfig;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +11,6 @@ import org.apache.logging.log4j.MarkerManager;
 
 import static legend.core.GameEngine.AUDIO_THREAD;
 import static legend.core.GameEngine.CONFIG;
-import static legend.core.audio.AudioThread.BASE_SAMPLE_RATE;
 import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
 
 public class Spu {
@@ -20,7 +18,7 @@ public class Spu {
   private static final Marker SPU_MARKER = MarkerManager.getMarker("SPU");
 
   private static final int SOUND_TPS = 60;
-  private static final int SAMPLES_PER_TICK = BASE_SAMPLE_RATE / SOUND_TPS;
+  private static final int SAMPLES_PER_TICK = 44_100 / SOUND_TPS;
 
   private GenericSource source;
 
@@ -77,7 +75,7 @@ public class Spu {
 
   public void init() {
     synchronized(this) {
-      this.source = AUDIO_THREAD.addSource(new GenericSource(AL_FORMAT_STEREO16, BASE_SAMPLE_RATE));
+      this.source = AUDIO_THREAD.addSource(new GenericSource(AL_FORMAT_STEREO16, 44100));
       this.playerVolume = CONFIG.getConfig(CoreMod.SFX_VOLUME_CONFIG.get()) * CONFIG.getConfig(CoreMod.MASTER_VOLUME_CONFIG.get());
     }
   }
@@ -463,7 +461,7 @@ public class Spu {
 
   public void setReverb(final ReverbConfig reverb) {
     synchronized(Spu.class) {
-      this.reverb.set(reverb, SampleRate._44100);
+      this.reverb.set(reverb);
     }
   }
 

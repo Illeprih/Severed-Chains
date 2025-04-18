@@ -569,7 +569,7 @@ public final class SItem {
   }
 
   private static void menuMusicLoaded(final List<FileData> files) {
-    menuMusic = new BackgroundMusic(files, 5815, AUDIO_THREAD.getSampleRate());
+    menuMusic = new BackgroundMusic(files, 5815);
   }
 
   /** FUN_8001e010 with param 0 */

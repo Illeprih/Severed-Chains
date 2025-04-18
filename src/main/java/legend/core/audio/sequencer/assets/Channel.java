@@ -4,7 +4,7 @@ import legend.game.unpacker.FileData;
 
 public final class Channel {
   private final int index;
-  private Instrument instrument;
+  private Program program;
   private float volume;
   private int pan;
   private int modulation;
@@ -22,7 +22,7 @@ public final class Channel {
 
     final int instrumentIndex = data.readByte(0x02);
     if(instrumentIndex != -1) {
-      this.instrument = soundFont.getInstrument(instrumentIndex);
+      this.program = soundFont.getInstrument(instrumentIndex);
     }
 
     this.changeVolume(data.readUByte(0x03) / 128.0f, sssqVolume);
@@ -32,7 +32,7 @@ public final class Channel {
     this.pitchBend = (data.readUByte(0x0a) - 0x40) * 2;
     // TODO this should probably be converted to an Enum
     this.priority = data.readUByte(0x0b);
-    this.breath = data.readUByte(0x0c);
+    this.breath = Breath.convert(data.readUByte(0x0c));
 
 //    this.adjustedVolume = data.readUByte(0x0e) / 128f;
   }
@@ -41,12 +41,12 @@ public final class Channel {
     return this.index;
   }
 
-  public Instrument getInstrument() {
-    return this.instrument;
+  public Program getInstrument() {
+    return this.program;
   }
 
-  public void setInstrument(final int instrumentIndex) {
-    this.instrument = this.soundFont.getInstrument(instrumentIndex);
+  public void setProgram(final int instrumentIndex) {
+    this.program = this.soundFont.getInstrument(instrumentIndex);
   }
 
   public float getVolume() {

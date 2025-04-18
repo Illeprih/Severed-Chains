@@ -26,4 +26,12 @@ public final class PanChange implements Command {
   public int getDeltaTime() {
     return this.deltaTime;
   }
+
+  public void apply(final boolean stereo) {
+    if(stereo) {
+      this.channel.setPan(this.pan);
+    } else {
+      this.channel.setPan(0x40);
+    }
+  }
 }

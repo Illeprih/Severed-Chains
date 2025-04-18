@@ -1,14 +1,13 @@
 package legend.core.audio.sequencer.assets;
 
-import legend.core.audio.SampleRate;
 import legend.game.unpacker.FileData;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Instrument {
+public final class Program {
   private final Type type;
-  private final InstrumentLayer[] layers;
+  private final Tone[] tones;
 
   private final float volume;
   private final int pan;
@@ -18,15 +17,9 @@ public final class Instrument {
   /** For SFX only */
   private final int startingNote;
 
-  Instrument(final FileData data, final SoundBank soundBank, final SampleRate sampleRate) {
+  Program(final FileData data, final SoundBank soundBank) {
     final int upperBoundByte = data.readUByte(0x00);
     this.type = Type.getType(upperBoundByte);
-
-    final int layerCount = this.type == Type.SFX ? (data.size() - 8) / 16 : (upperBoundByte & 0x7f) + 1;
-    this.layers = new InstrumentLayer[layerCount];
-    for(int layer = 0; layer < this.layers.length; layer++) {
-      this.layers[layer] = new InstrumentLayer(data.slice(8 + layer * 16, 16), soundBank, sampleRate);
-    }
 
     this.volume = data.readUByte(0x01) / 128.0f;
     this.pan = data.readUByte(0x02);
@@ -34,27 +27,33 @@ public final class Instrument {
     this.pitchBendMultiplier = data.readUByte(0x04);
     this.breathControlIndex = data.readUByte(0x05);
     this.startingNote = data.readUByte(0x06);
+
+    final int toneUpperBound = this.type == Type.SFX ? data.readUByte(0x07) : upperBoundByte & 0x7f;
+    this.tones = new Tone[toneUpperBound + 1];
+    for(int tone = 0; tone < this.tones.length; tone++) {
+      this.tones[tone] = new Tone(data.slice(8 + tone * 16, 16), soundBank);
+    }
   }
 
-  public List<InstrumentLayer> getLayers(final int note) {
-    final List<InstrumentLayer> layers = new ArrayList<>();
+  public List<Tone> getTones(final int note) {
+    final List<Tone> tones = new ArrayList<>();
 
     if(this.type == Type.SFX) {
-      layers.add(this.layers[note - this.startingNote]);
-      return layers;
+      tones.add(this.tones[note - this.startingNote]);
+      return tones;
     }
 
-    for(final InstrumentLayer layer : this.layers) {
+    for(final Tone layer : this.tones) {
       if(layer.canPlayNote(note)) {
-        layers.add(layer);
+        tones.add(layer);
 
         if(this.type == Type.STANDARD) {
-          return layers;
+          return tones;
         }
       }
     }
 
-    return layers;
+    return tones;
   }
 
   public float getVolume() {
@@ -75,7 +74,7 @@ public final class Instrument {
 
   private enum Type {
     STANDARD,
-    MULTILAYER,
+    MULTI_TONE,
     SFX;
 
     private static Type getType(final int upperBoundByte) {
@@ -84,16 +83,10 @@ public final class Instrument {
       }
 
       if((upperBoundByte & 0x80) != 0) {
-        return Type.MULTILAYER;
+        return Type.MULTI_TONE;
       }
 
       return Type.STANDARD;
-    }
-  }
-
-  void changeSampleRate(final SampleRate sampleRate) {
-    for(final InstrumentLayer layer : this.layers) {
-      layer.changeSampleRate(sampleRate);
     }
   }
 }

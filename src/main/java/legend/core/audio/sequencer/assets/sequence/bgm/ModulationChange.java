@@ -26,4 +26,8 @@ public final class ModulationChange implements Command {
   public int getDeltaTime() {
     return this.deltaTime;
   }
+
+  public void apply() {
+    this.channel.setModulation(this.modulation);
+  }
 }

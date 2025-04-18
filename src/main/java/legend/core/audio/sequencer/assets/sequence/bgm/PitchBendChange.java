@@ -26,4 +26,8 @@ public final class PitchBendChange implements Command {
   public int getDeltaTime() {
     return this.deltaTime;
   }
+
+  public void apply() {
+    this.channel.setPitchBend(this.pitchAmount);
+  }
 }

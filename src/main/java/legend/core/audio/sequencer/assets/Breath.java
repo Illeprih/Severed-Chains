@@ -5,11 +5,13 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import legend.core.audio.sequencer.LookupTables;
 import legend.game.unpacker.FileData;
 
+import static legend.core.audio.Constants.BREATH_COUNT;
+import static legend.core.audio.Constants.BREATH_MAX_VALUE;
+
 
 public final class Breath {
   private static final int HASH_MUL = 16777619;
   private static final int HASH_BASE = (int)2166136261L;
-  private static final int BREATH_COUNT = 240;
   /**
    * 0 - Sine wave
    * 1 - Triangular wave
@@ -18,11 +20,6 @@ public final class Breath {
    */
   private static final float[][] waveforms = new float[4][];
   private static final Int2ObjectMap<Breath> map = new Int2ObjectOpenHashMap<>();
-
-  private final float[] waveform;
-  private final boolean lerpInterp;
-  private final boolean half;
-  private final boolean abs;
 
   static {
     waveforms[0] = new float[BREATH_COUNT + 3];
@@ -106,14 +103,19 @@ public final class Breath {
       waveforms[3], true, true, false);
   }
 
-  private Breath(final float[] curve, final boolean lerpInterp, final boolean half, final boolean abs) {
+  private final float[] waveform;
+  private final boolean lerp;
+  private final boolean half;
+  private final boolean abs;
+
+  private Breath(final float[] curve, final boolean lerp, final boolean half, final boolean abs) {
     this.waveform = curve;
-    this.lerpInterp = lerpInterp;
+    this.lerp = lerp;
     this.half = half;
     this.abs = abs;
   }
 
-  public float get(final int position, final int interpolationIndex, final LookupTables lookupTables) {
+  public float getValue(final int position, final int interpolationIndex, final LookupTables lookupTables) {
     if(this.half) {
       if(position >= BREATH_COUNT / 2) {
         return 0;
@@ -121,7 +123,7 @@ public final class Breath {
     }
 
     float breath;
-    if(this.lerpInterp) {
+    if(this.lerp) {
       breath = this.waveform[position] + (float)interpolationIndex / lookupTables.getInterpolationStep() * (this.waveform[position + 1] - this.waveform[position]);
     } else {
       breath = lookupTables.interpolate(this.waveform, position, interpolationIndex);
@@ -134,7 +136,11 @@ public final class Breath {
     return breath;
   }
 
-  public static Breath get(final FileData data, final int fileId, final int tableIndex) {
+  public static int convert(final int value) {
+    return Math.round(BREATH_MAX_VALUE / (60 - 58 * value / 127.0f));
+  }
+
+  public static Breath load(final FileData data, final int fileId, final int tableIndex) {
     final int hash = hash(data);
 
     if(map.containsKey(hash)) {

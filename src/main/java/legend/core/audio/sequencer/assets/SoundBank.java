@@ -1,11 +1,11 @@
 package legend.core.audio.sequencer.assets;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import legend.game.unpacker.FileData;
 
 final class SoundBank {
-  private final Long2ObjectArrayMap<byte[]> entries = new Long2ObjectArrayMap<>();
+  private final Int2ObjectArrayMap<byte[]> entries = new Int2ObjectArrayMap<>();
 
   SoundBank(final FileData data) {
     final IntArrayList offsets = findSounds(data);

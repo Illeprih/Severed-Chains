@@ -26,4 +26,8 @@ public final class VolumeChange implements Command {
   public int getDeltaTime() {
     return this.deltaTime;
   }
+
+  public void apply(float sssqVolume) {
+    this.channel.changeVolume(this.volume, sssqVolume);
+  }
 }

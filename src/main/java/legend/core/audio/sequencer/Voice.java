@@ -1,18 +1,18 @@
 package legend.core.audio.sequencer;
 
+import legend.core.audio.EffectsOverTimeGranularity;
 import legend.core.audio.InterpolationPrecision;
-import legend.core.audio.SampleRate;
 import legend.core.audio.sequencer.assets.Breath;
 import legend.core.audio.sequencer.assets.Channel;
-import legend.core.audio.sequencer.assets.Instrument;
-import legend.core.audio.sequencer.assets.InstrumentLayer;
+import legend.core.audio.sequencer.assets.Program;
+import legend.core.audio.sequencer.assets.Tone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 final class Voice {
   private static final Logger LOGGER = LogManager.getFormatterLogger(Voice.class);
@@ -26,8 +26,8 @@ final class Voice {
   private final SoundBankEntry soundBankEntry = new SoundBankEntry();
 
   private Channel channel;
-  private Instrument instrument;
-  private InstrumentLayer layer;
+  private Program program;
+  private Tone layer;
 
   /** playingNote.used_00 */
   private boolean used;
@@ -39,11 +39,8 @@ final class Voice {
   private float velocityVolume;
   private int pitchBendMultiplier;
   private boolean isModulation;
-  private int modulation;
   /** waveforms_800c4ab8.waveforms_02 */
   private Breath[] breathControls;
-  /** playingNote.breath_3c */
-  private int breath;
   /** playingNote.breathControlListIndex_10 */
   private int breathControlIndex;
 
@@ -56,10 +53,10 @@ final class Voice {
   private boolean hasSamples;
   private final short[] samples = new short[28 + EMPTY.length];
 
-  Voice(final int index, final LookupTables lookupTables, final InterpolationPrecision bitDepth) {
+  Voice(final int index, final LookupTables lookupTables, final InterpolationPrecision bitDepth, final EffectsOverTimeGranularity granularity) {
     this.index = index;
     this.lookupTables = lookupTables;
-    this.counter = new VoiceCounter(bitDepth);
+    this.counter = new VoiceCounter(bitDepth, granularity);
   }
 
   void tick(final float[] output, final float[] reverb) {
@@ -105,7 +102,7 @@ final class Voice {
       return;
     }
 
-    this.counter.addBreath(this.breath);
+    this.counter.addBreath(this.channel.getBreath());
 
     // TODO Pitch bend would be set to 0x80, which does nothing, might be worth to figure out, if we can remove this entirely (possibly check in modulation/breath control settings, since that is not run for every sample)
     if(this.breathControls == null || this.breathControls.length == 0) {
@@ -117,35 +114,28 @@ final class Voice {
 
     // TODO Since breathControlIndex is set based on the asset, we might want to get rid of it entirely and simply load a short[]
  //   final float interpolatedBreath = this.lookupTables.interpolate(this.breathControls[this.breathControlIndex], breathControlPosition, breathControlInterpolationIndex);
-    final float interpolatedBreath = this.breathControls[this.breathControlIndex].get(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
+    final float interpolatedBreath = this.breathControls[this.breathControlIndex].getValue(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
 
-    final int finePitch = this.lookupTables.modulate(this.layer.getFinePitch(), interpolatedBreath, this.modulation);
+    final int finePitch = this.lookupTables.modulate(this.layer.getFinePitch(), interpolatedBreath, this.channel.getModulation());
 
     this.sampleRate = this.lookupTables.calculateSampleRate(this.layer.getKeyRoot(), this.note, finePitch, this.channel.getPitchBend(), this.pitchBendMultiplier);
   }
 
-  void keyOn(final Channel channel, final Instrument instrument, final InstrumentLayer layer, final int note, final int velocityVolume, final Breath[] breathControls, final int playingVoices) {
+  void keyOn(final Channel channel, final Program program, final Tone layer, final int note, final int velocityVolume, final Breath[] breathControls, final int playingVoices) {
     LOGGER.info(VOICE_MARKER, "Voice %d Key On", this.index);
 
     this.channel = channel;
-    this.instrument = instrument;
+    this.program = program;
     this.layer = layer;
     this.note = note;
     this.velocityVolume = velocityVolume / 128.0f;
-    this.pitchBendMultiplier = this.layer.isPitchBendMultiplierFromInstrument() ? this.instrument.getPitchBendMultiplier() : this.layer.getPitchBendMultiplier();
+    this.pitchBendMultiplier = this.layer.isPitchBendMultiplierFromProgram() ? this.program.getPitchBendMultiplier() : this.layer.getPitchBendMultiplier();
     this.breathControls = breathControls;
-    this.breath = this.lookupTables.adjustBreath(this.channel.getBreath());
     this.priority = VoicePriority.getPriority(this.layer.isHighPriority(), this.channel.getPriority());
     this.priorityOrder = playingVoices;
 
     this.isModulation = (this.layer.isModulation() && this.channel.getModulation() != 0);
-    if(this.isModulation) {
-      this.breathControlIndex = this.layer.isBreathControlIndexFromInstrument() ? this.instrument.getBreathControlIndex() : this.layer.getBreathControlIndex();
-      this.modulation = this.channel.getModulation();
-    } else {
-      // TODO is this really necessary?
-      this.modulation = 0;
-    }
+    this.breathControlIndex = this.layer.isBreathControlIndexFromProgram() ? this.program.getBreathControlIndex() : this.layer.getBreathControlIndex();
 
     this.counter.reset();
     this.adsrEnvelope.load(this.layer.getAdsr());
@@ -156,7 +146,7 @@ final class Voice {
 
     this.used = true;
     this.hasSamples = false;
-    System.arraycopy(EMPTY, 0, this.samples, 28, EMPTY.length);
+    this.samples[30] = 0;
   }
 
   void keyOff() {
@@ -174,17 +164,15 @@ final class Voice {
     this.note = 0;
     this.channel = null;
     this.layer = null;
-    this.instrument = null;
+    this.program = null;
     this.isModulation = false;
-    this.modulation = 0;
-    this.breath = 0;
     this.breathControlIndex = 0;
     this.priority = VoicePriority.LOW;
     System.arraycopy(EMPTY, 0, this.samples, 28, EMPTY.length);
   }
 
   @Nullable
-  public InstrumentLayer getLayer() {
+  public Tone getLayer() {
     return this.layer;
   }
 
@@ -225,9 +213,9 @@ final class Voice {
   }
 
   private void calculateVolume() {
-    final float volume = this.channel.getAdjustedVolume() * this.instrument.getVolume() * this.layer.getVolume() * this.velocityVolume;
+    final float volume = this.channel.getAdjustedVolume() * this.program.getVolume() * this.layer.getVolume() * this.velocityVolume;
 
-    final FloatFloatImmutablePair panVolumes = this.lookupTables.getPan(this.channel.getPan(), this.instrument.getPan(), this.layer.getPan());
+    final FloatFloatImmutablePair panVolumes = this.lookupTables.getPan(this.channel.getPan(), this.program.getPan(), this.layer.getPan());
     final float volumeL = volume * panVolumes.leftFloat();
     final float volumeR = volume * panVolumes.rightFloat();
 
@@ -251,28 +239,19 @@ final class Voice {
     this.calculateVolume();
   }
 
-  void setModulation(final int modulation) {
-    this.isModulation = true;
-    this.modulation = modulation;
-  }
+  void toggleModulation(final boolean modulation) {
+    this.isModulation = modulation;
 
-  void setBreath(final int breath) {
-    this.breath = this.lookupTables.adjustBreath(breath);
-  }
-
-  void changeInterpolationBitDepth(final InterpolationPrecision bitDepth) {
-    this.counter.changeInterpolationBitDepth(bitDepth);
-  }
-
-  void scaleSampleRate(final SampleRate oldRate, final SampleRate newRate) {
-    if(!this.used) {
-      return;
+    if(!modulation) {
+      this.counter.resetBreath();
     }
-
-    this.sampleRate = (int)Math.round(this.sampleRate * ((double)oldRate.value / (double)newRate.value));
   }
 
-  void scaleBreath(final int oldScale, final int newScale) {
-    this.breath = (int)Math.round(this.breath * ((double)oldScale / (double)newScale));
+  void changeInterpolationPrecision(final InterpolationPrecision bitDepth) {
+    this.counter.changeInterpolationPrecision(bitDepth);
+  }
+
+  void changeGranularity(final EffectsOverTimeGranularity granularity) {
+    this.counter.changeGranularity(granularity);
   }
 }
