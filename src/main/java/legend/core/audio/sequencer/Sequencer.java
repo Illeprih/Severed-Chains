@@ -30,6 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static legend.core.audio.Constants.BREATH_FORMAT_MULTIPLIER;
+import static legend.core.audio.Constants.BUFFERS_PER_TICK;
+import static legend.core.audio.Constants.BUFFER_SIZE;
 import static legend.core.audio.Constants.ENGINE_SAMPLE_RATE;
 import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
 
@@ -45,7 +48,7 @@ public final class Sequencer extends AudioSource {
   private final float[] voiceOutputBuffer = new float[2];
   private final float[] voiceReverbBuffer = new float[2];
   // TODO consider making this variable length for mono, but it might be better to simply always playback as stereo, just with down mixing
-  private final short[] outputBuffer = new short[ENGINE_SAMPLE_RATE * 2 / 60];
+  private final short[] outputBuffer = new short[BUFFER_SIZE];
 
   private final Reverberizer reverb = new Reverberizer();
 
@@ -73,7 +76,7 @@ public final class Sequencer extends AudioSource {
   private boolean paused = true;
 
   public Sequencer(final boolean stereo, final int voiceCount, final InterpolationPrecision bitDepth, final PitchResolution pitchResolution, final EffectsOverTimeGranularity effectsGranularity) {
-    super(2);
+    super(5);
 
     this.stereo = stereo;
 
@@ -111,7 +114,7 @@ public final class Sequencer extends AudioSource {
   @Override
   public void tick() {
     int samplePostition = 0;
-    for(int effect = 0; effect < this.lookupTables.getEffectsOverTimeScale(); effect++) {
+    for(int effect = 0; effect < (this.lookupTables.getEffectsOverTimeScale() / BUFFERS_PER_TICK); effect++) {
       for(int sample = 0; sample < this.effectsOverTimeSamples; sample++, samplePostition += 2) {
         this.clearFinishedVoices();
 
@@ -213,7 +216,7 @@ public final class Sequencer extends AudioSource {
   }
 
   private void keyOn(final KeyOn keyOn) {
-    LOGGER.info(SEQUENCER_MARKER, "Ken On Channel: %d, Note %d, Velocity: %d", keyOn.getChannel().getIndex(), keyOn.getNote(), keyOn.getVelocity());
+    LOGGER.info(SEQUENCER_MARKER, "Key On Channel: %d, Note %d, Velocity: %d", keyOn.getChannel().getIndex(), keyOn.getNote(), keyOn.getVelocity());
 
     if(keyOn.getChannel().getVolume() == 0) {
       LOGGER.warn(SEQUENCER_MARKER, "Channel: %d Volume is 0 - skipping", keyOn.getChannel().getIndex());
@@ -301,7 +304,7 @@ public final class Sequencer extends AudioSource {
   }
 
   private void breath(final BreathChange breathChange) {
-    LOGGER.info(SEQUENCER_MARKER, "Breath Control Channel: %d Breath: %d", breathChange.getChannel().getIndex(), breathChange.getBreath());
+    LOGGER.info(SEQUENCER_MARKER, "Breath Control Channel: %d Breath: %.2f", breathChange.getChannel().getIndex(), breathChange.getBreath() * BREATH_FORMAT_MULTIPLIER);
 
     breathChange.apply();
   }

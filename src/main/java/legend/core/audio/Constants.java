@@ -5,6 +5,10 @@ public final class Constants {
   public static final int ENGINE_SAMPLE_RATE = 48_000;
   public static final double SAMPLE_RATE_RATIO = BASE_SAMPLE_RATE / (double)ENGINE_SAMPLE_RATE;
 
+  public static final int BASE_TICKS_PER_SECOND = 60;
+  public static final int BUFFERS_PER_TICK = 4;
+  public static final int BUFFER_SIZE = ENGINE_SAMPLE_RATE * 2 / (BASE_TICKS_PER_SECOND * BUFFERS_PER_TICK);
+
   /**
    * 26 - The largest safe value
    * <p>

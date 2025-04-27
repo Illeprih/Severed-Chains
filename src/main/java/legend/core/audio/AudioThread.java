@@ -21,8 +21,11 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 import static legend.core.GameEngine.CONFIG;
+import static legend.core.audio.Constants.BASE_TICKS_PER_SECOND;
+import static legend.core.audio.Constants.BUFFERS_PER_TICK;
 import static org.lwjgl.openal.ALC10.ALC_DEVICE_SPECIFIER;
 import static org.lwjgl.openal.ALC10.alcCloseDevice;
 import static org.lwjgl.openal.ALC10.alcCreateContext;
@@ -39,7 +42,8 @@ public final class AudioThread implements Runnable {
   private static final Logger LOGGER = LogManager.getFormatterLogger(AudioThread.class);
   private static final Marker AUDIO_THREAD_MARKER = MarkerManager.getMarker("AUDIO_THREAD");
 
-  private final int nanosPerTick;
+  private static final int NANOS_PER_TICK = 1_000_000_000 / (BASE_TICKS_PER_SECOND * BUFFERS_PER_TICK * 2);
+
   private long audioContext;
   private long audioDevice;
   private final boolean stereo;
@@ -68,7 +72,6 @@ public final class AudioThread implements Runnable {
   }
 
   public AudioThread(final boolean stereo, final int voiceCount, final InterpolationPrecision bitDepth, final PitchResolution pitchResolution, final EffectsOverTimeGranularity granularity) {
-    this.nanosPerTick = 1_000_000_000 / 240;
     this.stereo = stereo;
     this.voiceCount = voiceCount;
     this.interpolationPrecision = bitDepth;
@@ -226,8 +229,6 @@ public final class AudioThread implements Runnable {
     this.running = true;
 
     while(this.running) {
-      final long time = System.nanoTime();
-
       boolean canBuffer = false;
 
       synchronized(this) {
@@ -267,11 +268,7 @@ public final class AudioThread implements Runnable {
         }
       }
 
-      if(!this.sequencer.canBuffer()) {
-        final long interval = System.nanoTime() - time;
-        final int toSleep = (int)(Math.max(0, this.nanosPerTick - interval) / 1_000_000);
-        DebugHelper.sleep(toSleep);
-      }
+      LockSupport.parkNanos(NANOS_PER_TICK);
     }
 
     synchronized(this) {
