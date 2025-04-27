@@ -158,8 +158,6 @@ final public class LookupTables {
 
   private static int effectsOverTimeGranularityValue(final EffectsOverTimeGranularity granularity) {
     return switch(granularity) {
-      case EffectsOverTimeGranularity.Retail -> 1;
-      case EffectsOverTimeGranularity.Double -> 2;
       case EffectsOverTimeGranularity.Quadruple -> 4;
       case EffectsOverTimeGranularity.Octuple -> 8;
       case EffectsOverTimeGranularity.Sexdecuple -> 16;

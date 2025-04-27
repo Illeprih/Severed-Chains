@@ -4,8 +4,6 @@ import static legend.core.audio.Constants.BREATH_BIT_SHIFT;
 import static legend.core.audio.Constants.BREATH_MAX_VALUE;
 
 public enum EffectsOverTimeGranularity {
-  Retail(0, 0),
-  Double(0,1),
   Quadruple(0,2),
   Octuple(1, 2),
   Sexdecuple(1, 3);
