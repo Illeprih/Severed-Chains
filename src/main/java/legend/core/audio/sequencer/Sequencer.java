@@ -1,6 +1,5 @@
 package legend.core.audio.sequencer;
 
-import legend.core.MathHelper;
 import legend.core.audio.AudioSource;
 import legend.core.audio.EffectsOverTimeGranularity;
 import legend.core.audio.InterpolationPrecision;
@@ -34,11 +33,11 @@ import static legend.core.audio.Constants.BREATH_FORMAT_MULTIPLIER;
 import static legend.core.audio.Constants.BUFFERS_PER_TICK;
 import static legend.core.audio.Constants.BUFFER_SIZE;
 import static legend.core.audio.Constants.ENGINE_SAMPLE_RATE;
-import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
 
 public final class Sequencer extends AudioSource {
   private static final Logger LOGGER = LogManager.getFormatterLogger(Sequencer.class);
   private static final Marker SEQUENCER_MARKER = MarkerManager.getMarker("SEQUENCER");
+  private static final int OPEN_AL_STEREO32 = 0x10011;
   // TODO switch between mono and stereo
   private final boolean stereo;
   private int effectsOverTimeSamples;
@@ -48,7 +47,7 @@ public final class Sequencer extends AudioSource {
   private final float[] voiceOutputBuffer = new float[2];
   private final float[] voiceReverbBuffer = new float[2];
   // TODO consider making this variable length for mono, but it might be better to simply always playback as stereo, just with down mixing
-  private final short[] outputBuffer = new short[BUFFER_SIZE];
+  private final float[] outputBuffer = new float[BUFFER_SIZE];
 
   private final Reverberizer reverb = new Reverberizer();
 
@@ -134,8 +133,8 @@ public final class Sequencer extends AudioSource {
 
         this.reverb.processReverb(this.voiceReverbBuffer[0], this.voiceReverbBuffer[1]);
 
-        this.outputBuffer[samplePostition    ] = (short)MathHelper.clamp(((this.voiceOutputBuffer[0] + this.reverb.getOutputLeft()) * this.engineVolumeLeft  * this.playerVolume), -0x8000, 0x7fff);
-        this.outputBuffer[samplePostition + 1] = (short)MathHelper.clamp(((this.voiceOutputBuffer[1] + this.reverb.getOutputRight()) * this.engineVolumeRight * this.playerVolume), -0x8000, 0x7fff);
+        this.outputBuffer[samplePostition    ] = (this.voiceOutputBuffer[0] + this.reverb.getOutputLeft()) * this.engineVolumeLeft  * this.playerVolume;
+        this.outputBuffer[samplePostition + 1] = (this.voiceOutputBuffer[1] + this.reverb.getOutputRight()) * this.engineVolumeRight * this.playerVolume;
       }
 
       this.handleVolumeChanging();
@@ -147,7 +146,7 @@ public final class Sequencer extends AudioSource {
       }
     }
 
-    this.bufferOutput(AL_FORMAT_STEREO16, this.outputBuffer, ENGINE_SAMPLE_RATE);
+    this.bufferOutput(OPEN_AL_STEREO32, this.outputBuffer, ENGINE_SAMPLE_RATE);
 
     super.tick();
   }
