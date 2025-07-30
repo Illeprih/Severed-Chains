@@ -1,5 +1,6 @@
 package legend.game.wmap;
 
+import de.jcm.discordgamesdk.activity.Activity;
 import legend.core.MathHelper;
 import legend.core.QueuedModelStandard;
 import legend.core.QueuedModelTmd;
@@ -53,6 +54,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static legend.core.GameEngine.CONFIG;
+import static legend.core.GameEngine.DISCORD;
 import static legend.core.GameEngine.GPU;
 import static legend.core.GameEngine.GTE;
 import static legend.core.GameEngine.PLATFORM;
@@ -417,6 +419,7 @@ public class WMap extends EngineState {
   @Override
   public void loadGameFromMenu(final GameState52c gameState) {
     this.wmapState_800bb10c = gameState.isOnWorldMap_4e4 ? WmapState.INIT_0 : WmapState.TRANSITION_TO_SUBMAP_7;
+    this.encounterAccumulator_800c6ae8 = 0;
   }
 
   @Override
@@ -643,6 +646,9 @@ public class WMap extends EngineState {
     this.initWmapAudioVisuals();
     this.tickMainMenuOpenTransition_800c6690 = 0;
     this.wmapState_800bb10c = WmapState.LOAD_BACKGROUND_OBJ_14;
+
+    this.updateDiscordRichPresence(DISCORD.activity);
+    DISCORD.updateActivity();
   }
 
   private void loadBackgroundObj() {
@@ -1877,26 +1883,20 @@ public class WMap extends EngineState {
     RENDERER.queueOrthoModel(this.modelAndAnimData_800c66a8.mapContinentNameObj, this.modelAndAnimData_800c66a8.mapOverlayTransforms, QueuedModelStandard.class)
       .monochrome(this.modelAndAnimData_800c66a8.mapTextureBrightness_20);
 
+    //LAB_800d6b5c
+    this.renderPath();
+
+    if(this.mapState_800c6798.continent_00 != Continent.ENDINESS_7) {//LAB_800d6b80
+      if(this.mapState_800c6798.queenFuryForceMovementMode_d8 == ForcedMovementMode.NONE_0) {// Render map zoom level pyramid thing
+        this.modelAndAnimData_800c66a8.zoomOverlay.render(this.modelAndAnimData_800c66a8.zoomState_1f8, this.modelAndAnimData_800c66a8.mapTextureBrightness_20);
+      }
+    }
+
     this.modelAndAnimData_800c66a8.mapTextureBrightness_20 += 0.25f / (3.0f / vsyncMode_8007a3b8);
 
     if(this.modelAndAnimData_800c66a8.mapTextureBrightness_20 > 1.0f) {
       this.modelAndAnimData_800c66a8.mapTextureBrightness_20 = 1.0f;
     }
-
-    //LAB_800d6b5c
-    this.renderPath();
-
-    if(this.mapState_800c6798.continent_00 == Continent.ENDINESS_7) {
-      return;
-    }
-
-    //LAB_800d6b80
-    if(this.mapState_800c6798.queenFuryForceMovementMode_d8 != ForcedMovementMode.NONE_0) {
-      return;
-    }
-
-    // Render map zoom level pyramid thing
-    this.modelAndAnimData_800c66a8.zoomOverlay.render(this.modelAndAnimData_800c66a8.zoomState_1f8);
   }
 
   @Method(0x800d7a34L)
@@ -3911,10 +3911,11 @@ public class WMap extends EngineState {
       return;
     }
 
+    this.handleStartButtonLocationLabels();
+
     //LAB_800e5178
     //LAB_800e5194
     if(this.mapState_800c6798.pathSegmentEndpointTypeCrossed_fc != PathSegmentEndpointType.TERMINAL_1) {
-      this.handleStartButtonLocationLabels();
       return;
     }
 
@@ -4264,7 +4265,6 @@ public class WMap extends EngineState {
         this.mapState_800c6798.disableInput_d0 = false;
         this.mapState_800c6798.shortForceMovementMode_d4 = ForcedMovementMode.NONE_0;
         this.mapState_800c6798.pathSegmentEndpointTypeCrossed_fc = PathSegmentEndpointType.NOT_AT_ENDPOINT_0;
-        this.startLocationLabelsActive_800c68a8 = true;
 
         //LAB_800e67a8
         for(int i = 0; i < 7; i++) {
@@ -4340,7 +4340,7 @@ public class WMap extends EngineState {
       }
 
       //LAB_800e6b74
-      if(PLATFORM.isActionHeld(INPUT_ACTION_GENERAL_OPEN_INVENTORY.get())) {
+      if(PLATFORM.isActionHeld(INPUT_ACTION_GENERAL_OPEN_INVENTORY.get()) || this.mapState_800c6798.pathSegmentEndpointTypeCrossed_fc == PathSegmentEndpointType.TERMINAL_1) {
         //LAB_800e6b90
         for(int i = 0; i < 7; i++) {
           //LAB_800e6bac
@@ -4352,7 +4352,7 @@ public class WMap extends EngineState {
       }
       //LAB_800e6afc
     } else {
-      if(PLATFORM.isActionPressed(INPUT_ACTION_WMAP_DESTINATIONS.get())) {
+      if(PLATFORM.isActionPressed(INPUT_ACTION_WMAP_DESTINATIONS.get()) && this.mapState_800c6798.pathSegmentEndpointTypeCrossed_fc != PathSegmentEndpointType.TERMINAL_1) {
         playSound(0, 2, (short)0, (short)0);
         this.startLocationLabelsActive_800c68a8 = true;
 
@@ -6091,5 +6091,11 @@ public class WMap extends EngineState {
     }
 
     this.smokeInstances_800c86f8 = null;
+  }
+
+  @Override
+  public void updateDiscordRichPresence(final Activity activity) {
+    super.updateDiscordRichPresence(activity);
+    activity.setState("Exploring");
   }
 }

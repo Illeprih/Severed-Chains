@@ -1,5 +1,6 @@
 package legend.game.submap;
 
+import de.jcm.discordgamesdk.activity.Activity;
 import legend.core.IoHelper;
 import legend.core.MathHelper;
 import legend.core.QueuedModelStandard;
@@ -74,6 +75,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static legend.core.GameEngine.CONFIG;
+import static legend.core.GameEngine.DISCORD;
 import static legend.core.GameEngine.EVENTS;
 import static legend.core.GameEngine.GPU;
 import static legend.core.GameEngine.GTE;
@@ -86,6 +88,7 @@ import static legend.core.MathHelper.psxDegToRad;
 import static legend.core.MathHelper.sin;
 import static legend.game.SItem.cacheCharacterSlots;
 import static legend.game.SItem.loadCharacterStats;
+import static legend.game.SItem.submapNames_8011c108;
 import static legend.game.Scus94491BpeSegment.getLoadedDrgnFiles;
 import static legend.game.Scus94491BpeSegment.loadDir;
 import static legend.game.Scus94491BpeSegment.loadFile;
@@ -93,6 +96,7 @@ import static legend.game.Scus94491BpeSegment.orderingTableBits_1f8003c0;
 import static legend.game.Scus94491BpeSegment.resizeDisplay;
 import static legend.game.Scus94491BpeSegment.startFadeEffect;
 import static legend.game.Scus94491BpeSegment.tmdGp0Tpage_1f8003ec;
+import static legend.game.Scus94491BpeSegment.unloadSoundFile;
 import static legend.game.Scus94491BpeSegment.zOffset_1f8003e8;
 import static legend.game.Scus94491BpeSegment_8002.FUN_800218f0;
 import static legend.game.Scus94491BpeSegment_8002.FUN_8002246c;
@@ -123,6 +127,7 @@ import static legend.game.Scus94491BpeSegment_8003.RotTransPers4;
 import static legend.game.Scus94491BpeSegment_8003.perspectiveTransform;
 import static legend.game.Scus94491BpeSegment_8004.engineStateOnceLoaded_8004dd24;
 import static legend.game.Scus94491BpeSegment_8004.engineState_8004dd20;
+import static legend.game.Scus94491BpeSegment_8004.stopMusicSequence;
 import static legend.game.Scus94491BpeSegment_8005.collidedPrimitiveIndex_80052c38;
 import static legend.game.Scus94491BpeSegment_8005.renderBorder_80052b68;
 import static legend.game.Scus94491BpeSegment_8005.shouldRestoreCameraPosition_80052c40;
@@ -388,15 +393,13 @@ public class SMap extends EngineState {
 
   @Override
   public void loadGameFromMenu(final GameState52c gameState) {
-    this.smapLoadingStage_800cb430 = SubmapState.RENDER_SUBMAP_12;
-    this.transitioning_800f7e4c = false;
+    this.encounterAccumulator_800c6ae8 = 0;
 
-    if(gameState.isOnWorldMap_4e4) {
-      this.mapTransition(0, submapScene_80052c34);
-    } else {
-      this.mapTransition(submapCut_80052c30, submapScene_80052c34);
-      this.restoreMusicAfterMenu();
-    }
+    // Copied over from LAB_8001e160
+    stopMusicSequence();
+    unloadSoundFile(8);
+
+    this.restoreMusicAfterMenu();
   }
 
   @Override
@@ -1191,7 +1194,7 @@ public class SMap extends EngineState {
       GTE.setTransforms(worldToScreenMatrix_800c3548);
       this.transformToWorldspace(worldspaceDeltaMovement, deltaMovement);
 
-      final int collidedPrimitiveIndex = this.collisionGeometry_800cbe08.checkCollision(player.sobjIndex_12e != 0, playerModel.coord2_14.coord.transfer, worldspaceDeltaMovement, true);
+      final int collidedPrimitiveIndex = this.collisionGeometry_800cbe08.checkCollision(player.sobjIndex_12e != 0, playerModel.coord2_14, worldspaceDeltaMovement, true);
       if(collidedPrimitiveIndex >= 0) {
         if(this.isWalkable(collidedPrimitiveIndex)) {
           player.finishInterpolatedMovement();
@@ -1393,6 +1396,10 @@ public class SMap extends EngineState {
   @ScriptParam(direction = ScriptParam.Direction.OUT, type = ScriptParam.Type.INT, name = "collidee", description = "The SubmapObject210 script index collided with, or -1 if not collided")
   @Method(0x800dee28L)
   private FlowControl scriptCheckPlayerCollision(final RunningScript<SubmapObject210> script) {
+    if(this.transitioning_800f7e4c) {
+      return FlowControl.CONTINUE;
+    }
+
     final Vector3f deltaMovement = new Vector3f();
     final Vector3f movement = new Vector3f();
 
@@ -1412,7 +1419,7 @@ public class SMap extends EngineState {
       GTE.setTransforms(worldToScreenMatrix_800c3548);
       this.transformToWorldspace(movement, deltaMovement);
 
-      this.collisionGeometry_800cbe08.checkCollision(sobj.sobjIndex_12e != 0, model.coord2_14.coord.transfer, movement, true);
+      this.collisionGeometry_800cbe08.checkCollision(sobj.sobjIndex_12e != 0, model.coord2_14, movement, true);
 
       //LAB_800def08
       angle = MathHelper.positiveAtan2(movement.z, movement.x);
@@ -3126,7 +3133,7 @@ public class SMap extends EngineState {
       }
 
       //LAB_800e2140
-      final int collidedPrimitiveIndex = this.collisionGeometry_800cbe08.checkCollision(sobj.sobjIndex_12e != 0, model.coord2_14.coord.transfer, movement, false);
+      final int collidedPrimitiveIndex = this.collisionGeometry_800cbe08.checkCollision(sobj.sobjIndex_12e != 0, model.coord2_14, movement, false);
       if(collidedPrimitiveIndex >= 0 && this.isWalkable(collidedPrimitiveIndex)) {
         model.coord2_14.coord.transfer.x += movement.x / (2.0f / vsyncMode_8007a3b8);
         model.coord2_14.coord.transfer.y = movement.y;
@@ -3901,6 +3908,9 @@ public class SMap extends EngineState {
         SCRIPTS.resume();
         this.smapTicks_800c6ae0 = 0;
         this.smapLoadingStage_800cb430 = SubmapState.WAIT_FOR_FADE_IN;
+
+        this.updateDiscordRichPresence(DISCORD.activity);
+        DISCORD.updateActivity();
       }
 
       case WAIT_FOR_FADE_IN -> {
@@ -5519,5 +5529,20 @@ public class SMap extends EngineState {
     }
 
     //LAB_800f48a8
+  }
+
+  @Override
+  public void updateDiscordRichPresence(final Activity activity) {
+    super.updateDiscordRichPresence(activity);
+    activity.setState("Exploring");
+  }
+
+  @Override
+  public String getLocation() {
+    if(submapId_800bd808 > -1 && submapId_800bd808 < submapNames_8011c108.length) {
+      return submapNames_8011c108[submapId_800bd808];
+    }
+
+    return super.getLocation();
   }
 }

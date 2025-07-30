@@ -35,15 +35,11 @@ public class OptionsScreen extends VerticalLayoutScreen {
   private final Map<Control, Label> helpLabels = new HashMap<>();
   private final Map<Control, ConfigEntry<?>> helpEntries = new HashMap<>();
 
-  private final FontOptions fontOptions = new FontOptions().size(0.66f).horizontalAlign(HorizontalAlign.RIGHT).colour(TextColour.BROWN).shadowColour(TextColour.MIDDLE_BROWN);
-
   public OptionsScreen(final ConfigCollection config, final Set<ConfigStorageLocation> validLocations, final ConfigCategory category, final Runnable unload) {
     deallocateRenderables(0xff);
-    startFadeEffect(2, 10);
 
     this.unload = unload;
-
-    this.addControl(new Background());
+    this.init();
 
     final Map<ConfigEntry<?>, String> translations = new HashMap<>();
 
@@ -62,7 +58,7 @@ public class OptionsScreen extends VerticalLayoutScreen {
         final ConfigEntry configEntry = entry.getKey();
         final String text = entry.getValue();
 
-        if(validLocations.contains(configEntry.storageLocation) && configEntry.hasEditControl()) {
+        if(validLocations.contains(configEntry.storageLocation) && configEntry.hasEditControl() && (!this.hideNonBattleEntries() || configEntry.availableInBattle())) {
           Control editControl;
           boolean error = false;
 
@@ -95,6 +91,15 @@ public class OptionsScreen extends VerticalLayoutScreen {
 
     this.addHotkey(I18n.translate("lod_core.ui.options.help"), INPUT_ACTION_MENU_HELP, this::help);
     this.addHotkey(I18n.translate("lod_core.ui.options.back"), INPUT_ACTION_MENU_BACK, this::back);
+  }
+
+  protected void init() {
+    startFadeEffect(2, 10);
+    this.addControl(new Background());
+  }
+
+  protected boolean hideNonBattleEntries() {
+    return false;
   }
 
   private Label createErrorLabel(final String log, final Throwable ex, final boolean setSize) {

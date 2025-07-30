@@ -1,5 +1,7 @@
 package legend.core;
 
+import com.github.difflib.patch.PatchFailedException;
+import discord.DiscordRichPresence;
 import legend.core.audio.AudioThread;
 import legend.core.audio.EffectsOverTimeGranularity;
 import legend.core.audio.InterpolationPrecision;
@@ -111,6 +113,8 @@ public final class GameEngine {
   public static final Spu SPU;
   public static final AudioThread AUDIO_THREAD;
 
+  public static final DiscordRichPresence DISCORD = new DiscordRichPresence();
+
   public static final Thread hardwareThread;
   public static final Thread openalThread;
 
@@ -213,7 +217,12 @@ public final class GameEngine {
           }
 
           statusText = I18n.translate("unpacker.patching_scripts");
-          new ScriptPatcher(Path.of("./patches"), Path.of("./files"), Path.of("./files/patches/cache"), Path.of("./files/patches/backups")).apply();
+          try {
+            new ScriptPatcher(Path.of("./patches"), Path.of("./files"), Path.of("./files/patches/cache"), Path.of("./files/patches/backups")).apply();
+          } catch(final PatchFailedException e) {
+            statusText = I18n.translate("unpacker.patching_failed");
+            throw e;
+          }
 
           loadXpTables();
 
@@ -250,11 +259,13 @@ public final class GameEngine {
     RENDERER.init();
     RENDERER.events().onClose(Loader::shutdownLoader);
     GPU.init();
+    DISCORD.init();
 
     try {
       time = System.nanoTime();
       RENDERER.run();
     } finally {
+      DISCORD.destroy();
       AUDIO_THREAD.destroy();
       RENDERER.delete();
       UPDATER.delete();
