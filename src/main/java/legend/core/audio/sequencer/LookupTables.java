@@ -15,7 +15,7 @@ final public class LookupTables {
   private PitchResolution pitchResolution;
   private int[] sampleRates;
   private int interpolationStep;
-  private final float[][] interpolationWeights = new float[2][];
+  private float[][] interpolationWeights;
   private final float[] pan = new float[0x80];
 
   LookupTables(final InterpolationPrecision bitDepth, final PitchResolution pitchResolution) {
@@ -26,20 +26,7 @@ final public class LookupTables {
       this.sampleRates[i] = (int)Math.round(BASE_SAMPLE_RATE_VALUE * SAMPLE_RATE_RATIO * Math.pow(2, i / (double)this.sampleRates.length));
     }
 
-    this.interpolationStep = 1 << bitDepth.value;
-
-    // The weights for Catmull-Rom splines are symmetrical, hence we can just store both of the unique sets and use a reverse index for half of them
-    this.interpolationWeights[0] = new float[this.interpolationStep + 1];
-    this.interpolationWeights[1] = new float[this.interpolationStep + 1];
-
-    for(int i = 0; i <= this.interpolationStep; i++) {
-      final double pow1 = i / (double)this.interpolationStep;
-      final double pow2 = pow1 * pow1;
-      final double pow3 = pow2 * pow1;
-
-      this.interpolationWeights[0][i] = (float)(0.5d * (-pow3 + 2 * pow2 - pow1));
-      this.interpolationWeights[1][i] = (float)(0.5d * (3 * pow3 - 5 * pow2 + 2));
-    }
+    this.changeInterpolationBitDepth(bitDepth);
 
     // Lerped original pan table. Probably could be made into a function, but there's a weird plato with the 0x78, and I was lazy.
     final int[] panTable = {
@@ -94,10 +81,12 @@ final public class LookupTables {
   }
 
   public float interpolate(final float[] array, final int position, final int interpolationIndex) {
-    return this.interpolationWeights[0][interpolationIndex] * array[position]
-      + this.interpolationWeights[1][interpolationIndex] * array[position + 1]
-      + this.interpolationWeights[1][this.interpolationStep - interpolationIndex] * array[position + 2]
-      + this.interpolationWeights[0][this.interpolationStep - interpolationIndex] * array[position + 3];
+    return this.interpolationWeights[interpolationIndex][0] * array[position]
+      + this.interpolationWeights[interpolationIndex][1] * array[position + 1]
+      + this.interpolationWeights[interpolationIndex][2] * array[position + 2]
+      + this.interpolationWeights[interpolationIndex][3] * array[position + 3]
+      + this.interpolationWeights[interpolationIndex][4] * array[position + 4]
+      + this.interpolationWeights[interpolationIndex][5] * array[position + 5];
   }
 
   FloatFloatImmutablePair getPan(final int channelPan, final int instrumentPan, final int layerPan) {
@@ -127,18 +116,37 @@ final public class LookupTables {
   void changeInterpolationBitDepth(final InterpolationPrecision bitDepth) {
     this.interpolationStep = 1 << bitDepth.value;
 
-    // The weights for Catmull-Rom splines are symmetrical, hence we can just store both of the unique sets and use a reverse index for half of them
-    this.interpolationWeights[0] = new float[this.interpolationStep + 1];
-    this.interpolationWeights[1] = new float[this.interpolationStep + 1];
+    this.interpolationWeights = new float[this.interpolationStep][];
 
-    for(int i = 0; i <= this.interpolationStep; i++) {
-      final double pow1 = i / (double)this.interpolationStep;
-      final double pow2 = pow1 * pow1;
-      final double pow3 = pow2 * pow1;
+    for(int i = 0; i < this.interpolationStep; i++) {
+      final double fraction = i / (double) this.interpolationStep;
 
-      this.interpolationWeights[0][i] = (float)(0.5d * (-pow3 + 2 * pow2 - pow1));
-      this.interpolationWeights[1][i] = (float)(0.5d * (3 * pow3 - 5 * pow2 + 2));
+      this.interpolationWeights[i] = lagrangeWeights(fraction, 6);
     }
+  }
+
+  private static float[] lagrangeWeights(final double x, final int taps) {
+    final float[] weights = new float[taps];
+
+    final int tapsBase = 1 - taps / 2;
+
+    for(int i = 0; i < taps; i++) {
+      double numerator = 1.0;
+      double denominator = 1.0;
+
+      for(int j = 0; j < taps; j++) {
+        if(i == j) {
+          continue;
+        }
+
+        numerator *= x - (tapsBase + j);
+        denominator *= (i - j);
+      }
+
+      weights[i] = (float)(numerator / denominator);
+    }
+
+    return weights;
   }
 
   public PitchResolution getPitchResolution() {

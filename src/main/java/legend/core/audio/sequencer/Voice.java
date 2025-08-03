@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 final class Voice {
   private static final Logger LOGGER = LogManager.getFormatterLogger(Voice.class);
   private static final Marker VOICE_MARKER = MarkerManager.getMarker("VOICE");
-  static final float[] EMPTY = {0, 0, 0};
+  static final float[] EMPTY = {0, 0, 0, 0, 0};
 
   private final int index;
   private final LookupTables lookupTables;
@@ -113,7 +113,6 @@ final class Voice {
     final int breathControlInterpolationIndex = this.counter.getBreathInterpolationIndex();
 
     // TODO Since breathControlIndex is set based on the asset, we might want to get rid of it entirely and simply load a short[]
- //   final float interpolatedBreath = this.lookupTables.interpolate(this.breathControls[this.breathControlIndex], breathControlPosition, breathControlInterpolationIndex);
     final float interpolatedBreath = this.breathControls[this.breathControlIndex].getValue(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
 
     final int finePitch = this.lookupTables.modulate(this.layer.getFinePitch(), interpolatedBreath, this.channel.getModulation());
@@ -146,7 +145,8 @@ final class Voice {
 
     this.used = true;
     this.hasSamples = false;
-    this.samples[30] = 0;
+    this.samples[32] = 0;
+    this.samples[31] = 0;
   }
 
   void keyOff() {

@@ -22,22 +22,28 @@ public final class Breath {
   private static final Int2ObjectMap<Breath> map = new Int2ObjectOpenHashMap<>();
 
   static {
-    waveforms[0] = new float[BREATH_COUNT + 3];
-    for(int i = 0; i < BREATH_COUNT; i++) {
-      waveforms[0][i + 1] = sineWave(i, BREATH_COUNT);
+    waveforms[0] = new float[BREATH_COUNT + 5];
+    for(int i = 1; i < BREATH_COUNT; i++) {
+      waveforms[0][i + 2] = sineWave(i, BREATH_COUNT);
     }
-    waveforms[0][BREATH_COUNT + 2] = waveforms[0][1];
+    waveforms[0][BREATH_COUNT + 3] = waveforms[0][3];
+    waveforms[0][BREATH_COUNT + 4] = waveforms[0][4];
+    waveforms[0][0] = waveforms[0][BREATH_COUNT + 2];
+    waveforms[0][1] = waveforms[0][BREATH_COUNT + 1];
 
     waveforms[1] = new float[BREATH_COUNT + 1];
     for(int i = 0; i < BREATH_COUNT; i++) {
       waveforms[1][i] = triangularWave(i, BREATH_COUNT);
     }
 
-    waveforms[2] = new float[BREATH_COUNT + 3];
-    for(int i = 0; i < BREATH_COUNT; i++) {
-      waveforms[2][i + 1] = sineWave(i * 2, BREATH_COUNT);
+    waveforms[2] = new float[BREATH_COUNT + 5];
+    for(int i = 1; i < BREATH_COUNT; i++) {
+      waveforms[2][i + 2] = sineWave(i * 2, BREATH_COUNT);
     }
-    waveforms[2][BREATH_COUNT + 2] = waveforms[2][1];
+    waveforms[2][BREATH_COUNT + 3] = waveforms[2][3];
+    waveforms[2][BREATH_COUNT + 4] = waveforms[2][4];
+    waveforms[2][0] = waveforms[2][BREATH_COUNT + 2];
+    waveforms[2][1] = waveforms[2][BREATH_COUNT + 1];
 
     waveforms[3] = new float[BREATH_COUNT + 1];
     for(int i = 0; i < BREATH_COUNT; i++) {
