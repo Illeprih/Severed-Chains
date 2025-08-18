@@ -308,14 +308,13 @@ public final class GameEngine {
     MOD_ACCESS.loadingComplete();
 
     // Load default bindings for input actions
-    InputBindings.loadBindings();
+    InputBindings.initBindings();
 
     return missingMods;
   }
 
   public static void bootRegistries() {
     REGISTRY_ACCESS.initializeRemaining();
-    InputBindings.loadBindings();
     ItemIcon.loadIconMap();
   }
 
