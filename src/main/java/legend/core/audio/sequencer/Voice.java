@@ -39,10 +39,8 @@ final class Voice {
   private float velocityVolume;
   private int pitchBendMultiplier;
   private boolean isModulation;
-  /** waveforms_800c4ab8.waveforms_02 */
-  private Breath[] breathControls;
-  /** playingNote.breathControlListIndex_10 */
-  private int breathControlIndex;
+  @Nullable
+  private Breath breath;
 
   private int priorityOrder;
   private VoicePriority priority;
@@ -104,17 +102,16 @@ final class Voice {
 
     this.counter.addBreath(this.channel.getBreath());
 
-    // TODO Pitch bend would be set to 0x80, which does nothing, might be worth to figure out, if we can remove this entirely (possibly check in modulation/breath control settings, since that is not run for every sample)
-    if(this.breathControls == null || this.breathControls.length == 0) {
+    // TODO Pitch bend would be set to 0x80, which does nothing, might be worth to figure out, if we can remove this entirely (possibly check in modulation/breath control settings, since that is not run for breath tick)
+    if(this.breath == null) {
       return;
     }
 
-    final Breath breath = this.breathControls[this.breathControlIndex];
-    final int breathControlPosition = breath.isDoubleFrequency() ? this.counter.getCurrentBreathDoubleIndex() : this.counter.getCurrentBreathIndex();
-    final int breathControlInterpolationIndex = breath.isDoubleFrequency() ? this.counter.getBreathDoubleInterpolationIndex() : this.counter.getBreathInterpolationIndex();
+    final int breathControlPosition = this.breath.isDoubleFrequency() ? this.counter.getCurrentBreathDoubleIndex() : this.counter.getCurrentBreathIndex();
+    final int breathControlInterpolationIndex = this.breath.isDoubleFrequency() ? this.counter.getBreathDoubleInterpolationIndex() : this.counter.getBreathInterpolationIndex();
 
     // TODO Since breathControlIndex is set based on the asset, we might want to get rid of it entirely and simply load a short[]
-    final float interpolatedBreath = breath.getValue(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
+    final float interpolatedBreath = this.breath.getValue(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
 
     final int finePitch = this.lookupTables.modulate(this.layer.getFinePitch(), interpolatedBreath, this.channel.getModulation());
 
@@ -130,12 +127,18 @@ final class Voice {
     this.note = note;
     this.velocityVolume = velocityVolume / 128.0f;
     this.pitchBendMultiplier = this.layer.isPitchBendMultiplierFromProgram() ? this.program.getPitchBendMultiplier() : this.layer.getPitchBendMultiplier();
-    this.breathControls = breathControls;
     this.priority = VoicePriority.getPriority(this.layer.isHighPriority(), this.channel.getPriority());
     this.priorityOrder = playingVoices;
 
     this.isModulation = (this.layer.isModulation() && this.channel.getModulation() != 0);
-    this.breathControlIndex = this.layer.isBreathControlIndexFromProgram() ? this.program.getBreathControlIndex() : this.layer.getBreathControlIndex();
+
+    final int breathControlIndex = this.layer.isBreathControlIndexFromProgram() ? this.program.getBreathControlIndex() : this.layer.getBreathControlIndex();
+
+    if(breathControlIndex == 0x7f) {
+      this.breath = null;
+    } else {
+      this.breath = breathControls[breathControlIndex];
+    }
 
     this.counter.reset();
     this.adsrEnvelope.load(this.layer.getAdsr());
@@ -166,7 +169,7 @@ final class Voice {
     this.layer = null;
     this.program = null;
     this.isModulation = false;
-    this.breathControlIndex = 0;
+    this.breath = null;
     this.priority = VoicePriority.LOW;
     System.arraycopy(EMPTY, 0, this.samples, 28, EMPTY.length);
   }
