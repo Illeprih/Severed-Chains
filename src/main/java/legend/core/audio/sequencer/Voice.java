@@ -109,12 +109,12 @@ final class Voice {
       return;
     }
 
-    final int breathControlPosition = this.counter.getCurrentBreathIndex();
-    final int breathControlInterpolationIndex = this.counter.getBreathInterpolationIndex();
+    final Breath breath = this.breathControls[this.breathControlIndex];
+    final int breathControlPosition = breath.isDoubleFrequency() ? this.counter.getCurrentBreathDoubleIndex() : this.counter.getCurrentBreathIndex();
+    final int breathControlInterpolationIndex = breath.isDoubleFrequency() ? this.counter.getBreathDoubleInterpolationIndex() : this.counter.getBreathInterpolationIndex();
 
     // TODO Since breathControlIndex is set based on the asset, we might want to get rid of it entirely and simply load a short[]
- //   final float interpolatedBreath = this.lookupTables.interpolate(this.breathControls[this.breathControlIndex], breathControlPosition, breathControlInterpolationIndex);
-    final float interpolatedBreath = this.breathControls[this.breathControlIndex].getValue(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
+    final float interpolatedBreath = breath.getValue(breathControlPosition, breathControlInterpolationIndex, this.lookupTables);
 
     final int finePitch = this.lookupTables.modulate(this.layer.getFinePitch(), interpolatedBreath, this.channel.getModulation());
 

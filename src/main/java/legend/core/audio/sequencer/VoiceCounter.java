@@ -1,5 +1,6 @@
 package legend.core.audio.sequencer;
 
+import legend.core.audio.Constants;
 import legend.core.audio.EffectsOverTimeGranularity;
 import legend.core.audio.InterpolationPrecision;
 
@@ -51,8 +52,16 @@ final class VoiceCounter {
     return this.breathCounter >>> this.granularity.BreathBitShift;
   }
 
+  int getCurrentBreathDoubleIndex() {
+    return (this.breathCounter >>> (this.granularity.BreathBitShift - 1)) & BREATH_COUNT;
+  }
+
   int getBreathInterpolationIndex() {
     return (this.breathCounter >>> this.breathInterpolationShift) & this.precision.interpolationAnd;
+  }
+
+  int getBreathDoubleInterpolationIndex() {
+    return (this.breathCounter >>> (this.breathInterpolationShift - 1)) & this.precision.interpolationAnd;
   }
 
   void addBreath(final int breath) {

@@ -37,9 +37,9 @@ public final class Constants {
   /** There are originally 60 values representing 1 second of breath control at the lowest speed */
   private static final int BASE_BREATH_COUNT = 60;
 
-  /** The sweet spot for these seems to be between 240 and 480,
-   * since some presets have double frequency (4π), it seems better to aim for 480 (<< 3).
-   * The Catmull-Rom splines are pretty good at interpolating these, but if you consider 480 to be base,
+  /** The sweet spot for these seems to be 240 points,
+   * the double frequency ones can be done by manipulating the counter and using the regular wave.
+   * The Catmull-Rom splines are pretty good at interpolating these, but if you consider 480 as target,
    * then 120 will produce results that are on average ~10x closer and with ~8x smaller maximum deviation,
    * 240 will produce results that are on average ~2100x closer and with ~1600x smaller maximum deviation.
    * There are so few base values, that the increase in memory usage ends up being so minimal,
@@ -47,7 +47,7 @@ public final class Constants {
    * Even at 60, the deviation becomes so tiny, that it's way below the 128th of a semitone resolution,
    * but it can reduce off by one errors.
    */
-  private static final int BREATH_COUNT_SHIFT = 3;
+  private static final int BREATH_COUNT_SHIFT = 2;
 
   public static final int BREATH_COUNT = BASE_BREATH_COUNT << BREATH_COUNT_SHIFT;
 
