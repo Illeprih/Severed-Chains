@@ -943,6 +943,21 @@ public class RetailSubmap extends Submap {
       renderPacket.offsetX_1c = envTexture.textureOffsetX_10;
       renderPacket.offsetY_1e = envTexture.textureOffsetY_12;
 
+      // Fix misaligned cutout in marshlands boat area (GH#1201)
+      if(this.cut == 111 && i == 8) {
+        renderPacket.offsetY_1e++;
+      }
+
+      // Fix misaligned cutout on ghost ship (GH#2210)
+      if(this.cut == 288 && i == 17) {
+        renderPacket.offsetY_1e++;
+      }
+
+      // Fix misaligned cutout in Hellena (GH#2203)
+      if(this.cut == 642 && i == 2) {
+        renderPacket.w_18--;
+      }
+
       //LAB_800e7210
       renderPacket.zFlags_22 &= 0x3fff;
     }
