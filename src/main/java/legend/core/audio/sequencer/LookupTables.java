@@ -6,6 +6,7 @@ import legend.core.audio.EffectsOverTimeGranularity;
 import legend.core.audio.InterpolationPrecision;
 import legend.core.audio.PitchResolution;
 
+import static legend.core.audio.Constants.INTERP_TAPS;
 import static legend.core.audio.Constants.PITCH_BIT_SHIFT;
 import static legend.core.audio.Constants.SAMPLE_RATE_RATIO;
 
@@ -81,12 +82,22 @@ final public class LookupTables {
   }
 
   public float interpolate(final float[] array, final int position, final int interpolationIndex) {
-    return this.interpolationWeights[interpolationIndex][0] * array[position]
-      + this.interpolationWeights[interpolationIndex][1] * array[position + 1]
-      + this.interpolationWeights[interpolationIndex][2] * array[position + 2]
-      + this.interpolationWeights[interpolationIndex][3] * array[position + 3]
-      + this.interpolationWeights[interpolationIndex][4] * array[position + 4]
-      + this.interpolationWeights[interpolationIndex][5] * array[position + 5];
+
+    float out = this.interpolationWeights[0][interpolationIndex] * array[position];
+
+    for(int i = 1; i < INTERP_TAPS / 2; i++) {
+      out += this.interpolationWeights[i][interpolationIndex] * array[position + i];
+    }
+
+    final int reverseIndex = this.interpolationStep - interpolationIndex;
+    final int halfIndex = INTERP_TAPS / 2 - 1;
+    final int half = INTERP_TAPS / 2;
+
+    for(int i= 0; i < INTERP_TAPS / 2; i++) {
+      out += this.interpolationWeights[halfIndex - i][reverseIndex] * array[position + half + i];
+    }
+
+    return out;
   }
 
   FloatFloatImmutablePair getPan(final int channelPan, final int instrumentPan, final int layerPan) {
@@ -116,13 +127,40 @@ final public class LookupTables {
   void changeInterpolationBitDepth(final InterpolationPrecision bitDepth) {
     this.interpolationStep = 1 << bitDepth.value;
 
-    this.interpolationWeights = new float[this.interpolationStep][];
+    this.interpolationWeights = new float[INTERP_TAPS / 2][];
 
-    for(int i = 0; i < this.interpolationStep; i++) {
-      final double fraction = i / (double) this.interpolationStep;
-
-      this.interpolationWeights[i] = lagrangeWeights(fraction, 6);
+    for(int i = 0; i < this.interpolationWeights.length; i++) {
+      this.interpolationWeights[i] = this.lagrangeSet(i, INTERP_TAPS);
     }
+  }
+
+  private float[] lagrangeSet(final int currentTap, final int totalTaps) {
+    final float[] out = new float[this.interpolationStep + 1];
+
+    for(int weight = 0; weight < this.interpolationStep + 1; weight++) {
+      final double fraction = weight / (double) this.interpolationStep;
+      out[weight] = lagrangeWeight(fraction, currentTap, totalTaps);
+    }
+
+    return out;
+  }
+
+  private static float lagrangeWeight(final double fraction, final int currentTap, final int totalTaps) {
+    final int tapsBase = 1 - totalTaps / 2;
+
+    double numerator = 1.0;
+    double denominator = 1.0;
+
+    for(int j = 0; j < totalTaps; j++) {
+      if(currentTap == j) {
+        continue;
+      }
+
+      numerator *= fraction - (tapsBase + j);
+      denominator *= (currentTap - j);
+    }
+
+    return (float)(numerator / denominator);
   }
 
   private static float[] lagrangeWeights(final double x, final int taps) {

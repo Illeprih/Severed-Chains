@@ -32,10 +32,6 @@ out VS_OUT {
 uniform vec2 clutOverride;
 uniform vec2 tpageOverride;
 uniform float modelIndex;
-uniform int ctmdFlags;
-uniform vec3 battleColour;
-
-uniform int useVdf;
 
 struct ModelTransforms {
   mat4 model;
@@ -65,30 +61,17 @@ layout(std140) uniform lighting {
 
 layout(std140) uniform projectionInfo {
   float znear;
-  /** PS1 projection plane distance (H) when in PS1 perspective mode */
+  /** PS1 projection plane distance (H) */
   float zfar;
   float zdiffInv;
   /** 0: ortho, 1: PS1 perspective, 2: modern perspective */
   float projectionMode;
 };
 
-layout(std140) uniform vdf {
-  vec4[1024] vertices;
-};
-
 void main() {
-  vec4 pos;
-
-  if(useVdf == 0) {
-    pos = vec4(inPos.xyz, 1.0f);
-  } else {
-    pos = vec4(vertices[int(inPos.w)].xyz, 1.0f);
-  }
+  vec4 pos = vec4(inPos.xyz, 1.0f);
 
   vs_out.vertFlags = int(inFlags);
-  bool ctmd = (ctmdFlags & 0x20) != 0;
-  bool uniformLit = (ctmdFlags & 0x10) != 0;
-  bool translucent = (vs_out.vertFlags & 0x8) != 0 || (ctmdFlags & 0x2) != 0;
   bool coloured = (vs_out.vertFlags & 0x4) != 0;
   bool textured = (vs_out.vertFlags & 0x2) != 0;
   bool lit = (vs_out.vertFlags & 0x1) != 0;
@@ -96,19 +79,7 @@ void main() {
   ModelTransforms t = modelTransforms[int(modelIndex)];
   Light l = lights[int(modelIndex)];
 
-  if(textured && translucent && !lit && (ctmd || uniformLit)) {
-    vs_out.vertColour.rgb = inColour.rgb * battleColour.rgb;
-    // Individiually checks for retail color overflows
-    if(vs_out.vertColour.r > 2.0) {
-      vs_out.vertColour.r = mod(vs_out.vertColour.r, 2.0);
-    }
-    if(vs_out.vertColour.g > 2.0) {
-      vs_out.vertColour.g = mod(vs_out.vertColour.g, 2.0);
-    }
-    if(vs_out.vertColour.b > 2.0) {
-      vs_out.vertColour.b = mod(vs_out.vertColour.b, 2.0);
-    }
-  } else if(lit) {
+  if(lit) {
     float range = 1.0;
 
     // Textures use a colour range where 0xff = 200%. We've normalized that so that 0xff will equal 2.0 rather than 1.0 so we need to adjust the range

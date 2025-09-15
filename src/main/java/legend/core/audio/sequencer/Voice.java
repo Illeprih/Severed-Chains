@@ -14,10 +14,12 @@ import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
 
 import org.jetbrains.annotations.Nullable;
 
+import static legend.core.audio.Constants.INTERP_TAPS;
+
 final class Voice {
   private static final Logger LOGGER = LogManager.getFormatterLogger(Voice.class);
   private static final Marker VOICE_MARKER = MarkerManager.getMarker("VOICE");
-  static final float[] EMPTY = {0, 0, 0, 0, 0};
+  public static final float[] EMPTY = new float[INTERP_TAPS - 1];
 
   private final int index;
   private final LookupTables lookupTables;
@@ -145,8 +147,7 @@ final class Voice {
 
     this.used = true;
     this.hasSamples = false;
-    this.samples[32] = 0;
-    this.samples[31] = 0;
+    System.arraycopy(EMPTY, 0, this.samples, 28, EMPTY.length);
   }
 
   void keyOff() {

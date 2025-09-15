@@ -7,6 +7,7 @@ import legend.game.unpacker.FileData;
 
 import static legend.core.audio.Constants.BREATH_COUNT;
 import static legend.core.audio.Constants.BREATH_MAX_VALUE;
+import static legend.core.audio.Constants.INTERP_TAPS;
 
 
 public final class Breath {
@@ -22,14 +23,16 @@ public final class Breath {
   private static final Int2ObjectMap<Breath> map = new Int2ObjectOpenHashMap<>();
 
   static {
-    waveforms[0] = new float[BREATH_COUNT + 5];
+    waveforms[0] = new float[BREATH_COUNT + INTERP_TAPS - 1];
+    final int offset = INTERP_TAPS / 2 - 1;
     for(int i = 1; i < BREATH_COUNT; i++) {
-      waveforms[0][i + 2] = sineWave(i, BREATH_COUNT);
+      waveforms[0][i + offset] = sineWave(i, BREATH_COUNT);
     }
-    waveforms[0][BREATH_COUNT + 3] = waveforms[0][3];
-    waveforms[0][BREATH_COUNT + 4] = waveforms[0][4];
-    waveforms[0][0] = waveforms[0][BREATH_COUNT + 2];
-    waveforms[0][1] = waveforms[0][BREATH_COUNT + 1];
+
+    for(int i = 0; i < offset; i++) {
+      waveforms[0][i] = waveforms[0][BREATH_COUNT + offset + i];
+      waveforms[0][BREATH_COUNT + offset + i + 1] = waveforms[0][offset + i + 1];
+    }
 
     waveforms[1] = new float[BREATH_COUNT + 1];
     for(int i = 0; i < BREATH_COUNT; i++) {

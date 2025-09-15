@@ -4,12 +4,13 @@ import legend.core.audio.EffectsOverTimeGranularity;
 import legend.core.audio.InterpolationPrecision;
 
 import static legend.core.audio.Constants.BREATH_COUNT;
+import static legend.core.audio.Constants.INTERP_TAPS;
 import static legend.core.audio.Constants.PITCH_BIT_SHIFT;
 
 final class VoiceCounter {
   //TODO verify this is actually correct for other values in case we want to change
   //     the window size. This should be a generic solution but it wasn't verified.
-  private final static int START_OFFSET = ((Voice.EMPTY.length) / 2 + 1) << PITCH_BIT_SHIFT;
+  private final static int START_OFFSET = (INTERP_TAPS / 2) << PITCH_BIT_SHIFT;
   private static final int SAMPLE_MAX_VALUE = 28 << PITCH_BIT_SHIFT;
 
   private int sampleCounter = START_OFFSET;

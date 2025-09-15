@@ -69,6 +69,8 @@ public final class Constants {
   public static final int BREATH_BIT_SHIFT = BASE_BREATH_BIT_SHIFT - BREATH_COUNT_SHIFT;
   public static final int BREATH_MAX_VALUE = BASE_BREATH_COUNT << BASE_BREATH_BIT_SHIFT;
 
+  public static final int INTERP_TAPS = 24;
+
 
   private Constants() {}
 }
