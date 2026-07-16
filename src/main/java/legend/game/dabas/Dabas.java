@@ -222,7 +222,8 @@ public class Dabas implements DabasInterface {
     clearGreen_800bb104 = this.oldClearColour.y;
     clearBlue_800babc0 = this.oldClearColour.z;
 
-    AUDIO_THREAD.removeSource(this.source);
+    // TODO
+    // AUDIO_THREAD.removeSource(this.source);
 
     this.displayTexture.delete();
     this.texturedObj.delete();

@@ -13,6 +13,6 @@ public class SfxVolumeConfigEntry extends VolumeConfigEntry {
     super.onChange(configCollection, oldValue, newValue);
     final float volume = newValue * CONFIG.getConfig(CoreMod.MASTER_VOLUME_CONFIG.get());
     SPU.setPlayerVolume(volume);
-    AUDIO_THREAD.setXaPlayerVolume(volume);
+    AUDIO_THREAD.setXaVolume(volume);
   }
 }

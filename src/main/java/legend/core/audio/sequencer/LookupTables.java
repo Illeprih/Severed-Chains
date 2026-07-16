@@ -15,7 +15,7 @@ final public class LookupTables {
   private final float[][] interpolationWeights = new float[2][];
   private final float[] pan = new float[0x80];
 
-  LookupTables(final InterpolationPrecision bitDepth, final PitchResolution pitchResolution) {
+  public LookupTables(final InterpolationPrecision bitDepth, final PitchResolution pitchResolution) {
     this.pitchResolution = pitchResolution;
     this.sampleRates = new int[12 * pitchResolution.value];
 

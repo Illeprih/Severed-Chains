@@ -12,7 +12,7 @@ public class MasterVolumeConfigEntry extends VolumeConfigEntry {
   public void onChange(final ConfigCollection configCollection, final Float oldValue, final Float newValue) {
     super.onChange(configCollection, oldValue, newValue);
     AUDIO_THREAD.setMusicPlayerVolume(newValue * CONFIG.getConfig(CoreMod.MUSIC_VOLUME_CONFIG.get()));
-    AUDIO_THREAD.setXaPlayerVolume(newValue * CONFIG.getConfig(CoreMod.SFX_VOLUME_CONFIG.get()));
+    AUDIO_THREAD.setXaVolume(newValue * CONFIG.getConfig(CoreMod.SFX_VOLUME_CONFIG.get()));
     SPU.setPlayerVolume(newValue * CONFIG.getConfig(CoreMod.SFX_VOLUME_CONFIG.get()));
   }
 }

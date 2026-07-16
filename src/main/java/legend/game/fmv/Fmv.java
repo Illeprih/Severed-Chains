@@ -332,7 +332,8 @@ public final class Fmv {
     RENDERER.setProjectionSize(320, 240);
     RENDERER.setClearColour(0.0f, 0.0f, 0.0f);
 
-    source = AUDIO_THREAD.addSource(new GenericSource(AL_FORMAT_STEREO16, 37800));
+    // TODO
+    // source = AUDIO_THREAD.addSource(new GenericSource(AL_FORMAT_STEREO16, 37800));
     volume = CONFIG.getConfig(CoreMod.FMV_VOLUME_CONFIG.get()) * CONFIG.getConfig(CoreMod.MASTER_VOLUME_CONFIG.get());
 
     skipButton = null;
@@ -418,11 +419,14 @@ public final class Fmv {
             decodedXaAdpcm[i] *= volume;
           }
 
+          // TODO
+          /*
           synchronized(source) {
             if(source.canBuffer()) {
               source.bufferOutput(decodedXaAdpcm);
             }
           }
+           */
         }
       }
 
@@ -663,7 +667,8 @@ public final class Fmv {
 
       oldRenderer = null;
 
-      AUDIO_THREAD.removeSource(source);
+      // TODO
+      // AUDIO_THREAD.removeSource(source);
       source = null;
 
       rumbleData = null;
