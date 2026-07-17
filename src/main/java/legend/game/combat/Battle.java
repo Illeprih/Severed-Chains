@@ -34,6 +34,7 @@ import legend.game.characters.VitalsStat;
 import legend.game.combat.bent.AttackEvent;
 import legend.game.combat.bent.BattleEntity27c;
 import legend.game.combat.bent.BattleEntityStat;
+import legend.game.combat.bent.ElementIcon;
 import legend.game.combat.bent.MonsterBattleEntity;
 import legend.game.combat.bent.PlayerBattleEntity;
 import legend.game.combat.bent.SetBattleEntityStatEvent;
@@ -305,6 +306,8 @@ import static legend.lodmod.LodMod.ATTACK_AVOID_STAT;
 import static legend.lodmod.LodMod.ATTACK_HIT_STAT;
 import static legend.lodmod.LodMod.ATTACK_STAT;
 import static legend.lodmod.LodMod.DEFENSE_STAT;
+import static legend.lodmod.LodMod.ELEMENT_ICON_NO_ELEMENT;
+import static legend.lodmod.LodMod.ELEMENT_ICON_PHYSICAL;
 import static legend.lodmod.LodMod.GUARD_HEAL_STAT;
 import static legend.lodmod.LodMod.HP_STAT;
 import static legend.lodmod.LodMod.INPUT_ACTION_BTTL_ATTACK;
@@ -1475,7 +1478,11 @@ public class Battle extends EngineState<Battle> {
       //LAB_8001d0e0
       loadingAudioFiles_800bcf78.updateAndGet(val -> val | 0x40);
       final PlayerBattleEntity player = (PlayerBattleEntity)bent;
-      Loader.loadDirectory(player.character.getDragoonTransformSoundsPath(player), this::deffSoundsLoaded);
+
+      Loader
+        .loadDirectory(player.character.getDragoonTransformSoundsPath(player))
+        .thenAccept(this::deffSoundsLoaded)
+      ;
     } else if(type == 1) {
       //LAB_8001d164
       this.loadEncounterMonsterSoundsWithPhases();
@@ -1484,7 +1491,7 @@ public class Battle extends EngineState<Battle> {
       loadingAudioFiles_800bcf78.updateAndGet(val -> val | 0x40);
 
       //LAB_8001d1a8
-      loadDrgnDir(0, 1327, this::deffSoundsLoaded);
+      loadDrgnDir(0, 1327).thenAccept(this::deffSoundsLoaded);
     }
 
     //LAB_8001d1b0
@@ -1513,7 +1520,10 @@ public class Battle extends EngineState<Battle> {
     }
 
     //LAB_8001ce70
-    Loader.loadDirectory(path, files -> this.charAttackSoundsLoaded(files, soundName, bent));
+    Loader
+      .loadDirectory(path)
+      .thenAccept(files -> this.charAttackSoundsLoaded(files, soundName, bent))
+    ;
   }
 
   @Method(0x8001ce98L)
@@ -1562,7 +1572,7 @@ public class Battle extends EngineState<Battle> {
         }
 
         if(Loader.exists("monsters/phases/%s/%d/%d".formatted(boss, phase, monsterSlot))) {
-          loadDir("monsters/phases/%s/%d/%d".formatted(boss, phase, monsterSlot), files -> {
+          loadDir("monsters/phases/%s/%d/%d".formatted(boss, phase, monsterSlot)).thenAccept(files -> {
             this.monsterSoundLoaded(files, bent);
 
             if(count.decrementAndGet() == 0) {
@@ -1598,7 +1608,7 @@ public class Battle extends EngineState<Battle> {
       }
 
       if(Loader.exists("monsters/" + bent.charId_272 + "/sounds")) {
-        loadDir("monsters/" + bent.charId_272 + "/sounds", files -> {
+        loadDir("monsters/" + bent.charId_272 + "/sounds").thenAccept(files -> {
           this.monsterSoundLoaded(files, bent);
 
           if(count.decrementAndGet() == 0) {
@@ -1651,7 +1661,7 @@ public class Battle extends EngineState<Battle> {
       fileId = musicIndex;
     }
 
-    loadDrgnDir(0, fileId, callback);
+    loadDrgnDir(0, fileId).thenAccept(callback);
   }
 
   @ScriptDescription("Loads attack sounds for a character")
@@ -1684,7 +1694,7 @@ public class Battle extends EngineState<Battle> {
     sssqResetStuff();
     final int cutsceneIndex = script.params_20[0].get();
     final int dirIndex = 2437 + cutsceneIndex * 3;
-    loadDrgnDir(0, dirIndex, this::battleCutsceneSoundsLoaded);
+    loadDrgnDir(0, dirIndex).thenAccept(this::battleCutsceneSoundsLoaded);
     return FlowControl.CONTINUE;
   }
 
@@ -1713,7 +1723,7 @@ public class Battle extends EngineState<Battle> {
         .mapToObj(Integer::toString)
         .toArray(String[]::new);
 
-      loadDrgnFiles(0, this::uploadExtraBattleCutsceneSoundbank, fileNames);
+      loadDrgnFiles(0, fileNames).thenAccept(this::uploadExtraBattleCutsceneSoundbank);
     }
 
     //LAB_8001edd4
@@ -1752,7 +1762,7 @@ public class Battle extends EngineState<Battle> {
     unloadSoundFile(6);
     final int monsterIndex = script.params_20[0].get();
     final int dirIndex = 1841 + monsterIndex;
-    loadDrgnDir(0, dirIndex, this::monsterAttackSoundsLoaded);
+    loadDrgnDir(0, dirIndex).thenAccept(this::monsterAttackSoundsLoaded);
     return FlowControl.CONTINUE;
   }
 
@@ -1778,7 +1788,7 @@ public class Battle extends EngineState<Battle> {
     unloadSoundFile(7);
     final int charId = script.params_20[0].get();
     final int dirIndex = 1897 + charId;
-    loadDrgnDir(0, dirIndex, this::characterAttackSoundsLoaded);
+    loadDrgnDir(0, dirIndex).thenAccept(this::characterAttackSoundsLoaded);
     return FlowControl.CONTINUE;
   }
 
@@ -1805,7 +1815,7 @@ public class Battle extends EngineState<Battle> {
     loadingAudioFiles_800bcf78.updateAndGet(val -> val | 0x80);
     final int fileIndex = 732 + script.params_20[0].get() * 5;
     final boolean playSequence = script.params_20[1].get() == 0;
-    loadDrgnDir(0, fileIndex, files -> musicPackageLoadedCallback(files, fileIndex, playSequence));
+    loadDrgnDir(0, fileIndex).thenAccept(files -> musicPackageLoadedCallback(files, fileIndex, playSequence));
     return FlowControl.CONTINUE;
   }
 
@@ -1818,7 +1828,7 @@ public class Battle extends EngineState<Battle> {
     loadingAudioFiles_800bcf78.updateAndGet(val -> val | 0x80);
     final int fileIndex = 2353 + script.params_20[0].get() * 6;
     final boolean playSequence = script.params_20[1].get() == 0;
-    loadDrgnDir(0, fileIndex, files -> musicPackageLoadedCallback(files, fileIndex, playSequence));
+    loadDrgnDir(0, fileIndex).thenAccept(files -> musicPackageLoadedCallback(files, fileIndex, playSequence));
     return FlowControl.CONTINUE;
   }
 
@@ -1827,7 +1837,7 @@ public class Battle extends EngineState<Battle> {
     final BackgroundMusic bgm = new BackgroundMusic(files, fileIndex);
     bgm.setVolume(40 / 128.0f);
 
-    loadDrgnDir(0, victoryType, victoryFiles -> this.loadVictoryMusic(victoryFiles, bgm));
+    loadDrgnDir(0, victoryType).thenAccept(victoryFiles -> this.loadVictoryMusic(victoryFiles, bgm));
 
     loadingAudioFiles_800bcf78.updateAndGet(val -> val & ~0x4000);
 
@@ -1889,7 +1899,7 @@ public class Battle extends EngineState<Battle> {
         }
 
         if(Loader.exists(path + '/' + monsterSlot)) {
-          loadDir(path + '/' + monsterSlot, files -> {
+          loadDir(path + '/' + monsterSlot).thenAccept(files -> {
             this.monsterSoundLoaded(files, bent);
 
             if(count.decrementAndGet() == 0) {
@@ -1913,7 +1923,7 @@ public class Battle extends EngineState<Battle> {
   public void initBattle() {
     LOGGER.info(BATTLE, "Battle starting");
 
-    new Tim(Loader.loadFile("shadow.tim")).uploadToGpu();
+    new Tim(Loader.loadFileSync("shadow.tim")).uploadToGpu();
 
     this.FUN_800c8624();
 
@@ -2103,13 +2113,16 @@ public class Battle extends EngineState<Battle> {
       bent.model_148.coord2_14.transforms.rotate.zero();
       battleState_8006e398.addPlayer(state);
 
-      Loader.loadDirectory(character.getBattleSoundsPath(bent), files -> {
-        this.charSoundEffectsLoaded(files, bent);
+      Loader
+        .loadDirectory(character.getBattleSoundsPath(bent))
+        .thenAccept(files -> {
+          this.charSoundEffectsLoaded(files, bent);
 
-        if(remaining.decrementAndGet() == 0) {
-          loadingAudioFiles_800bcf78.updateAndGet(val -> val & ~0x8);
-        }
-      });
+          if(remaining.decrementAndGet() == 0) {
+            loadingAudioFiles_800bcf78.updateAndGet(val -> val & ~0x8);
+          }
+        })
+      ;
     }
 
     this.initPlayerBattleEntityStats();
@@ -2199,7 +2212,7 @@ public class Battle extends EngineState<Battle> {
       final int enemyIndex = a0.charIndex_1a2;
 
       if(Loader.exists("monsters/%d/textures/combat".formatted(enemyIndex))) {
-        loadFile("monsters/%d/textures/combat".formatted(enemyIndex), files -> this.loadCombatantTim(a0, files));
+        loadFile("monsters/%d/textures/combat".formatted(enemyIndex)).thenAccept(files -> this.loadCombatantTim(a0, files));
       }
     }
   }
@@ -2210,7 +2223,11 @@ public class Battle extends EngineState<Battle> {
     for(int charSlot = 0; charSlot < gameState_800babc8.charIds_88.size(); charSlot++) {
       final CharacterData2c character = gameState_800babc8.getCharacterBySlot(charSlot);
       final int finalCharSlot = charSlot;
-      Loader.loadFile(character.getBattleTexturePath(battleState_8006e398.playerBents_e40.get(charSlot).innerStruct_00), files -> this.loadCharacterTim(files, finalCharSlot));
+
+      Loader
+        .loadFile(character.getBattleTexturePath(battleState_8006e398.playerBents_e40.get(charSlot).innerStruct_00))
+        .thenAccept(files -> this.loadCharacterTim(files, finalCharSlot))
+      ;
     }
   }
 
@@ -2227,7 +2244,11 @@ public class Battle extends EngineState<Battle> {
     for(int charSlot = 0; charSlot < gameState_800babc8.charIds_88.size(); charSlot++) {
       final CharacterData2c character = gameState_800babc8.getCharacterBySlot(charSlot);
       final int finalCharSlot = charSlot;
-      Loader.loadDirectory(character.getBattleModelPath(battleState_8006e398.playerBents_e40.get(charSlot).innerStruct_00), files -> this.loadCharTmdAndAnims(files, finalCharSlot));
+
+      Loader
+        .loadDirectory(character.getBattleModelPath(battleState_8006e398.playerBents_e40.get(charSlot).innerStruct_00))
+        .thenAccept(files -> this.loadCharTmdAndAnims(files, finalCharSlot))
+      ;
     }
   }
 
@@ -2297,6 +2318,7 @@ public class Battle extends EngineState<Battle> {
 
           LOGGER.info(BATTLE, "Bent %s (%s) forced turn start", this.currentTurnBent_800c66c8.innerStruct_00.getName(), this.currentTurnBent_800c66c8.name);
           EVENTS.postEvent(new BattleEntityTurnEvent<>(this, encounter, this.forcedTurnBent_800c66bc));
+          this.hud.currentAttackElements.clear();
         } else { // Take regular turns
           //LAB_800c7ce8
           if(battleState_8006e398.hasAliveMonsters()) { // Monsters alive, calculate next bent turn
@@ -2306,6 +2328,7 @@ public class Battle extends EngineState<Battle> {
 
             LOGGER.info(BATTLE, "Bent %s (%s) turn start", this.currentTurnBent_800c66c8.innerStruct_00.getName(), this.currentTurnBent_800c66c8.name);
             EVENTS.postEvent(new BattleEntityTurnEvent<>(this, encounter, this.currentTurnBent_800c66c8));
+            this.hud.currentAttackElements.clear();
 
             //LAB_800c7d74
           } else { // Monsters dead
@@ -2615,7 +2638,7 @@ public class Battle extends EngineState<Battle> {
 
     // ... and defer loading to the next frame so that any texture animations currently in the pipeline finish
     RENDERER.addTask(() -> {
-      loadDrgnDir(0, 2497 + stage, files -> {
+      loadDrgnDir(0, 2497 + stage).thenAccept(files -> {
         if(files.get(1).hasVirtualSize()) {
           this.loadStageMcq(new McqHeader(files.get(1)));
         }
@@ -2625,7 +2648,7 @@ public class Battle extends EngineState<Battle> {
         }
       });
 
-      loadDrgnDir(0, (2497 + stage) + "/0", files -> this.loadStageTmdAndAnim("DRGN0/" + (2497 + stage) + "/0", files));
+      loadDrgnDir(0, (2497 + stage) + "/0").thenAccept(files -> this.loadStageTmdAndAnim("DRGN0/" + (2497 + stage) + "/0", files));
     });
 
     this.currentStage_800c66a4 = stage;
@@ -2829,14 +2852,18 @@ public class Battle extends EngineState<Battle> {
           if((combatant.flags_19e & 0x4) == 0) {
             // Enemy TMDs
             final int fileIndex = 3137 + combatant.charIndex_1a2;
-            loadDrgnDir(0, fileIndex, files -> this.combatantTmdAndAnimLoadedCallback(files, combatant, true));
+            loadDrgnDir(0, fileIndex).thenAccept(files -> this.combatantTmdAndAnimLoadedCallback(files, combatant, true));
           } else {
             // Player TMDs
             //LAB_800c9334
             combatant.flags_19e |= 0x2;
 
             final CharacterData2c character = gameState_800babc8.getCharacterBySlot(combatant.charSlot_19c);
-            Loader.loadDirectory(character.getBattleModelPath(combatant.playerBent), files -> this.combatantTmdAndAnimLoadedCallback(files, combatant, false));
+
+            Loader
+              .loadDirectory(character.getBattleModelPath(combatant.playerBent))
+              .thenAccept(files -> this.combatantTmdAndAnimLoadedCallback(files, combatant, false))
+            ;
           }
         }
       }
@@ -2921,12 +2948,12 @@ public class Battle extends EngineState<Battle> {
       if((combatant.flags_19e & 0x4) == 0) {
         // Enemy attack animations
         fileIndex = 3593 + combatant.charIndex_1a2;
-        loadDrgnDir(0, fileIndex, files -> this.attackAnimationsLoaded(files, combatant, true, -1));
+        loadDrgnDir(0, fileIndex).thenAccept(files -> this.attackAnimationsLoaded(files, combatant, true, -1));
       } else {
         //LAB_800c97a4
         final int charId = gameState_800babc8.charIds_88.getInt(combatant.charSlot_19c);
         final CharacterData2c character = gameState_800babc8.charData_32c.get(charId);
-        character.template.loadAttackAnimations(character, combatant.playerBent, files -> this.attackAnimationsLoaded(files, combatant, false, combatant.charSlot_19c));
+        character.template.loadAttackAnimations(character, combatant.playerBent).thenAccept(files -> this.attackAnimationsLoaded(files, combatant, false, combatant.charSlot_19c));
       }
     }
 
@@ -3203,7 +3230,11 @@ public class Battle extends EngineState<Battle> {
   public void loadCombatantTextures(final CombatantStruct1a8 combatant) {
     if(combatant.charIndex_1a2 >= 0) {
       final CharacterData2c character = gameState_800babc8.getCharacterBySlot(combatant.charSlot_19c);
-      Loader.loadFile(character.getBattleTexturePath(combatant.playerBent), files -> this.loadCombatantTim(combatant, files));
+
+      Loader
+        .loadFile(character.getBattleTexturePath(combatant.playerBent))
+        .thenAccept(files -> this.loadCombatantTim(combatant, files))
+      ;
     }
 
     //LAB_800ca64c
@@ -6536,7 +6567,7 @@ public class Battle extends EngineState<Battle> {
     for(int i = 0; i < dragoonDeffsWithExtraTims_800fb040.length; i++) {
       if(dragoonDeffsWithExtraTims_800fb040[i] == index) {
         if(Loader.isDirectory("SECT/DRGN0.BIN/%d".formatted(4115 + i))) {
-          loadDrgnDir(0, 4115 + i, this::uploadTims);
+          loadDrgnDir(0, 4115 + i).thenAccept(this::uploadTims);
         }
       }
     }
@@ -6625,7 +6656,7 @@ public class Battle extends EngineState<Battle> {
     for(int i = 0; i < cutsceneDeffsWithExtraTims_800fb05c.length; i++) {
       if(cutsceneDeffsWithExtraTims_800fb05c[i] == cutsceneIndex) {
         if(Loader.isDirectory("SECT/DRGN0.BIN/%d".formatted(5505 + i))) {
-          loadDrgnDir(0, 5505 + i, this::uploadTims);
+          loadDrgnDir(0, 5505 + i).thenAccept(this::uploadTims);
         }
       }
     }
@@ -6640,16 +6671,26 @@ public class Battle extends EngineState<Battle> {
     this.loadedDeff_800c6938.script_14 = null;
     this.deffLoadingStage_800fafe8 = 1;
 
-    Loader.loadDirectory(tims, this::uploadTims);
-    Loader.loadDirectory(deff.resolve("0"), files -> {
-      this.loadDeffPackage(files, this.loadedDeff_800c6938.managerState_18);
+    Loader
+      .loadDirectory(tims)
+      .thenAccept(this::uploadTims)
+    ;
 
-      // We don't want the script to load before the DEFF package, so queueing this file inside of the DEFF package callback forces serialization
-      Loader.loadFile(deff.resolve("1"), file -> {
-        LOGGER.info(DEFF, "Loading DEFF script");
-        this.loadedDeff_800c6938.script_14 = new ScriptFile(deff.toString(), file.getBytes());
-      });
-    });
+    Loader
+      .loadDirectory(deff.resolve("0"))
+      .thenAccept(files -> {
+        this.loadDeffPackage(files, this.loadedDeff_800c6938.managerState_18);
+
+        // We don't want the script to load before the DEFF package, so queueing this file inside of the DEFF package callback forces serialization
+        Loader
+          .loadFile(deff.resolve("1"))
+          .thenAccept(file -> {
+            LOGGER.info(DEFF, "Loading DEFF script");
+            this.loadedDeff_800c6938.script_14 = new ScriptFile(deff.toString(), file.getBytes());
+          })
+        ;
+      })
+    ;
   }
 
   @ScriptDescription("Ticks the DEFF loader for DEFFs that are not set up to tick themselves. May pause and rewind if the DEFF is not yet ready for that stage.")
@@ -7494,8 +7535,8 @@ public class Battle extends EngineState<Battle> {
   @Method(0x800eacf4L)
   public void loadBattleHudDeff() {
     loadDrgnDirSync(0, "4114/2", this::hudDeffLoaded);
-    loadDrgnDir(0, "4114/3", this::uploadTims);
-    loadDrgnDir(0, "4114/1", files -> {
+    loadDrgnDir(0, "4114/3").thenAccept(this::uploadTims);
+    loadDrgnDir(0, "4114/1").thenAccept(files -> {
       deffManager_800c693c.scripts_2c = new ScriptFile[files.size()];
 
       for(int i = 0; i < files.size(); i++) {
@@ -8530,6 +8571,14 @@ public class Battle extends EngineState<Battle> {
     final BattleEntity27c attacker = SCRIPTS.getObject(script.params_20[0].get(), BattleEntity27c.class);
     final BattleEntity27c defender = SCRIPTS.getObject(script.params_20[1].get(), BattleEntity27c.class);
 
+    this.hud.currentAttackElements.add(ELEMENT_ICON_PHYSICAL.get());
+    if(attacker instanceof final PlayerBattleEntity player) {
+      for(final Element element : player.getAttackElements()) {
+        this.addElementIcon(element);
+      }
+    }
+    this.hud.currentAttackElements.remove(ELEMENT_ICON_NO_ELEMENT.get());
+
     final int damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.PHYSICAL, CoreMod.PHYSICAL_DAMAGE_FORMULA.calculate(attacker, defender))).damage;
 
     script.params_20[2].set(damage);
@@ -8558,12 +8607,13 @@ public class Battle extends EngineState<Battle> {
     //LAB_800f272c
     if((attacker.status_0e & 0x800) != 0) {
       attacker.status_0e &= 0xf7ff;
+      damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.DRAGOON_MAGIC_STATUS_ITEMS, damage)).damage;
     } else {
       damage = defender.applyDamageResistanceAndImmunity(damage, AttackType.DRAGOON_MAGIC_STATUS_ITEMS);
       damage = defender.applyElementalResistanceAndImmunity(damage, attacker.spell_94.element_08.get());
+      damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.DRAGOON_MAGIC_STATUS_ITEMS, damage)).damage;
+      this.addElementIcon(attacker.spell_94.element_08.get());
     }
-
-    damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.DRAGOON_MAGIC_STATUS_ITEMS, damage)).damage;
 
     //LAB_800f27ec
     script.params_20[3].set(damage);
@@ -8591,12 +8641,13 @@ public class Battle extends EngineState<Battle> {
     //LAB_800f28c8
     if((attacker.status_0e & 0x800) != 0) {
       attacker.status_0e &= 0xf7ff;
+      damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.ITEM_MAGIC, damage)).damage;
     } else {
       damage = defender.applyDamageResistanceAndImmunity(damage, AttackType.ITEM_MAGIC);
       damage = defender.applyElementalResistanceAndImmunity(damage, attacker.item_d4.getAttackElement());
+      damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.ITEM_MAGIC, damage)).damage;
+      this.addElementIcon(attacker.item_d4.getAttackElement());
     }
-
-    damage = EVENTS.postEvent(new AttackEvent(this, attacker, defender, AttackType.ITEM_MAGIC, damage)).damage;
 
     //LAB_800f2970
     script.params_20[3].set(damage);
@@ -8744,7 +8795,7 @@ public class Battle extends EngineState<Battle> {
 
   @Method(0x800f84c8L)
   public void loadBattleHudTextures() {
-    loadDrgnDir(0, 4113, this::battleHudTexturesLoadedCallback);
+    loadDrgnDir(0, 4113).thenAccept(this::battleHudTexturesLoadedCallback);
   }
 
   @Method(0x800f8670L)
@@ -8997,31 +9048,29 @@ public class Battle extends EngineState<Battle> {
   @Method(0x800f98b0L)
   public FlowControl scriptTakeItem(final RunningScript<?> script) {
     final RegistryId itemId = script.params_20[0].getRegistryId();
+    script.params_20[1].set(0);
 
     if(gameState_800babc8.items_2e9.isEmpty()) {
-      script.params_20[1].set(0);
       return FlowControl.CONTINUE;
     }
 
-    ItemStack stack;
+    // Take a random item
     if(itemId == null) {
-      stack = gameState_800babc8.items_2e9.get((simpleRand() * gameState_800babc8.items_2e9.getSize()) >> 16);
+      final ItemStack random = gameState_800babc8.items_2e9.get((simpleRand() * gameState_800babc8.items_2e9.getSize()) >> 16);
+      final RegistryId randomId = random.getRegistryId();
 
-      if(stack.isProtected()) {
-        stack = ItemStack.EMPTY;
-      } else {
-        stack = gameState_800babc8.items_2e9.take(stack);
+      if(!random.isProtected() && gameState_800babc8.items_2e9.take(random).isEmpty()) {
+        script.params_20[1].set(randomId);
       }
-    } else {
-      stack = gameState_800babc8.items_2e9.take(REGISTRIES.items.getEntry(itemId).get());
+
+      return FlowControl.CONTINUE;
     }
 
-    //LAB_800f9988
-    //LAB_800f99a4
-    if(!stack.isEmpty()) {
-      script.params_20[1].set(stack.getItem().getRegistryId());
-    } else {
-      script.params_20[1].set(0);
+    // Take a specific item
+    final ItemStack stack = gameState_800babc8.items_2e9.take(REGISTRIES.items.getEntry(itemId).get());
+
+    if(stack.isEmpty()) {
+      script.params_20[1].set(itemId);
     }
 
     return FlowControl.CONTINUE;
@@ -9181,9 +9230,9 @@ public class Battle extends EngineState<Battle> {
 
   @Method(0x80109050L)
   private void loadStageDataAndControllerScripts() {
-    this.playerBattleScript_800c66fc = new ScriptFile("player_combat_script", Loader.loadFile("player_combat_script").getBytes());
+    this.playerBattleScript_800c66fc = new ScriptFile("player_combat_script", Loader.loadFileSync("player_combat_script").getBytes());
 
-    loadDrgnFile(1, "401", this::combatControllerScriptLoaded);
+    loadDrgnFile(1, "401").thenAccept(this::combatControllerScriptLoaded);
   }
 
   @Method(0x80109170L)
@@ -9223,7 +9272,7 @@ public class Battle extends EngineState<Battle> {
     combatant.gold_196 = event.gold;
     combatant._19a = rewards._06;
 
-    loadDrgnFile(1, Integer.toString(enemyId + 1), file -> this.loadCombatantScript(file.getBytes(), combatantIndex));
+    loadDrgnFile(1, Integer.toString(enemyId + 1)).thenAccept(file -> this.loadCombatantScript(file.getBytes(), combatantIndex));
   }
 
   @Method(0x8010989cL)
@@ -9267,5 +9316,12 @@ public class Battle extends EngineState<Battle> {
   @Override
   public GsRVIEW2 getCamera() {
     return this.camera_800c67f0.rview2_00;
+  }
+
+  public void addElementIcon(final Element element) {
+    final ElementIcon icon = REGISTRIES.elementIcons.getEntry(element.getRegistryId()).get();
+    if(icon != null) {
+      this.hud.currentAttackElements.add(icon);
+    }
   }
 }

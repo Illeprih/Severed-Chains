@@ -5,6 +5,7 @@ lod_core.name=Legend of Dragoon (core)
 lod_core.config.category.configure=Configure
 lod_core.config.category.gameplay.label=Gameplay
 lod_core.config.category.graphics.label=Graphics
+lod_core.config.category.postprocessing.label=Post-Processing
 lod_core.config.category.audio.label=Audio
 lod_core.config.category.controls.label=Controls
 lod_core.config.category.other.label=Other
@@ -184,6 +185,36 @@ lod_core.config.ignore_steam_input_mode.IGNORE_WHEN_GAMEPAD_USED=Ignore when gam
 lod_core.config.ignore_steam_input_mode.NONE=Off (allow Steam Input)
 lod_core.config.retail_font.label=Font
 
+# Shader config
+lod_core.config.shader_enable_crt.label=CRT Enabled
+lod_core.config.shader_scanlines_opacity.label=CRT: Scanline Opacity
+lod_core.config.shader_grille_opacity.label=CRT: Grille Opacity
+lod_core.config.shader_pixelate.label=CRT: Pixelate
+lod_core.config.shader_pixelate.NONE=None
+lod_core.config.shader_pixelate.P240=240p (Original)
+lod_core.config.shader_pixelate.P480=480p
+lod_core.config.shader_pixelate.P720=720p
+lod_core.config.shader_pixelate.NATIVE_1_4=1/4 x Native
+lod_core.config.shader_pixelate.NATIVE_1_3=1/3 x Native
+lod_core.config.shader_pixelate.NATIVE_1_2=1/2 x Native
+lod_core.config.shader_roll.label=CRT: Roll
+lod_core.config.shader_roll_speed.label=CRT: Roll Speed
+lod_core.config.shader_roll_size.label=CRT: Roll Size
+lod_core.config.shader_roll_variation.label=CRT: Roll Variation
+lod_core.config.shader_roll_intensity.label=CRT: Roll Intensity
+lod_core.config.shader_noise_opacity.label=CRT: Noise Opacity
+lod_core.config.shader_noise_speed.label=CRT: Noise Speed
+lod_core.config.shader_static_intensity.label=CRT: Static Intensity
+lod_core.config.shader_aberration.label=CRT: Aberration
+lod_core.config.shader_brightness.label=CRT: Brightness
+lod_core.config.shader_discolour.label=CRT: Discolour
+lod_core.config.shader_edge_warp.label=CRT: Edge Warp Intensity
+lod_core.config.shader_vignette_intensity.label=CRT: Vignette Intensity
+lod_core.config.shader_vignette_opacity.label=CRT: Vignette Opacity
+lod_core.config.shader_bloom_intensity.label=CRT: Bloom Intensity
+lod_core.config.shader_bloom_threshold.label=CRT: Bloom Threshold
+lod_core.config.shader_bloom_radius.label=CRT: Bloom Radius
+
 # FMV config
 lod_core.config.fmv.skip_keyboard = Press %s to skip
 lod_core.config.fmv.skip_controller = Press %s to skip
@@ -247,6 +278,8 @@ lod_core.config.item_group_sort_mode.label=Item group sorting
 lod_core.config.item_group_sort_mode.help=Controls sorting within groups (e.g. potions, spells) of items
 lod_core.config.item_group_sort_mode.ALPHABETICAL=Alphabetical
 lod_core.config.item_group_sort_mode.RETAIL=Retail
+lod_core.config.element_icon_config.label=Elemental Icon Display
+lod_core.config.element_icon_config.help=Displays an icon beside damage numbers that will indicate the types of damage.
 
 lod_core.input_actions.menu_up.name=Menu: up
 lod_core.input_actions.menu_down.name=Menu: down

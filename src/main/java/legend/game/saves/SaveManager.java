@@ -82,7 +82,7 @@ public final class SaveManager {
   private final SaveVersion serializerVersion;
   private final SaveSerializer serializer;
 
-  private final Latch<FileData> retailAtlas = new Latch<>(() -> Loader.loadFile("retail_atlas.png"));
+  private final Latch<FileData> retailAtlas = new Latch<>(() -> Loader.loadFileSync("retail_atlas.png"));
 
   public SaveManager(final SaveVersion serializerVersion, final SaveSerializer serializer) {
     this.serializerVersion = serializerVersion;
@@ -233,13 +233,13 @@ public final class SaveManager {
       bootRegistries();
 
       final Campaign campaign = Campaign.create(this, campaignName);
-      Files.createDirectories(campaign.path);
-
       final List<MemcardSavedGame> saves = new ArrayList<>();
 
       for(final Path memcard : memcards) {
         this.splitMemcard(campaign, new FileData(Files.readAllBytes(memcard)), saves);
       }
+
+      Files.createDirectories(campaign.path);
 
       saves.sort(Comparator.comparingInt(save -> save.timestamp));
       final Object2IntMap<String> indices = new Object2IntOpenHashMap<>();

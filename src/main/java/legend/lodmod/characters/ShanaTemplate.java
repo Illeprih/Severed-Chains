@@ -18,6 +18,7 @@ import legend.lodmod.LodSpells;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static legend.game.DrgnFiles.loadDrgnDir;
@@ -46,12 +47,10 @@ public class ShanaTemplate extends RetailCharacterTemplate {
 
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
-    Loader.loadFiles(onLoad,
-      "sobj/Shana 2/model",
-      "sobj/Shana 2/textures/2b46e254f937a5f9",
-      "sobj/Shana 2/animations/56dd42c5e783a9e8",
-      "sobj/Shana 2/animations/4381bf9814df0ed9",
-      "sobj/Shana 2/animations/588b49332d43c821");
+    Loader
+      .loadFiles("SECT/DRGN22.BIN/836/33", "SECT/DRGN22.BIN/836/textures/1", "SECT/DRGN22.BIN/836/34", "SECT/DRGN22.BIN/836/35", "SECT/DRGN22.BIN/836/36")
+      .thenAccept(onLoad)
+    ;
   }
 
   @Override
@@ -195,13 +194,13 @@ public class ShanaTemplate extends RetailCharacterTemplate {
   }
 
   @Override
-  public void loadHumanAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent, final Consumer<List<FileData>> onLoad) {
-    loadDrgnDir(0, 4047, onLoad);
+  public CompletableFuture<List<FileData>> loadHumanAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent) {
+    return loadDrgnDir(0, 4047);
   }
 
   @Override
-  public void loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent, final Consumer<List<FileData>> onLoad) {
-    loadDrgnDir(0, 4105, onLoad);
+  public CompletableFuture<List<FileData>> loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent) {
+    return loadDrgnDir(0, 4105);
   }
 
   @Override

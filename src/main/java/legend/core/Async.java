@@ -3,7 +3,7 @@ package legend.core;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public final class Async {
@@ -20,15 +20,15 @@ public final class Async {
     return CompletableFuture.supplyAsync(task, EXECUTOR);
   }
 
-  public static void allLoaded(final AtomicInteger counter, final int totalCount, final Runnable action, final Runnable onCompletion) {
-    action.run();
-
-    if(counter.incrementAndGet() == totalCount) {
-      onCompletion.run();
-    }
-  }
-
   public static void shutdown() {
     EXECUTOR.shutdown();
+  }
+
+  public static void shutdownNow() {
+    EXECUTOR.shutdownNow();
+  }
+
+  public static boolean awaitShutdown() throws InterruptedException {
+    return EXECUTOR.awaitTermination(5, TimeUnit.SECONDS);
   }
 }

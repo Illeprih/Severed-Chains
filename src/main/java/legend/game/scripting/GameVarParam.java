@@ -1,5 +1,6 @@
 package legend.game.scripting;
 
+import it.unimi.dsi.fastutil.ints.IntList;
 import legend.game.FullScreenEffects;
 import legend.game.Graphics;
 import legend.game.SItem;
@@ -16,6 +17,7 @@ import legend.game.inventory.InventoryEntry;
 import legend.game.inventory.ItemStack;
 import legend.game.modding.coremod.CoreMod;
 import legend.game.modding.coremod.CorePostBattleActions;
+import legend.game.modding.events.gamestate.PartyFlagsChangeEvent;
 import legend.game.submap.SMap;
 import legend.game.submap.SubmapObject210;
 import legend.lodmod.LodMod;
@@ -23,6 +25,7 @@ import legend.lodmod.LodPostBattleActions;
 import org.legendofdragoon.modloader.registries.RegistryId;
 
 import static legend.core.GameEngine.CONFIG;
+import static legend.core.GameEngine.EVENTS;
 import static legend.core.GameEngine.REGISTRIES;
 import static legend.core.GameEngine.SCRIPTS;
 import static legend.game.EngineStates.currentEngineState_8004dd04;
@@ -30,6 +33,7 @@ import static legend.game.Scus94491BpeSegment_8006.battleState_8006e398;
 import static legend.game.Scus94491BpeSegment_800b.battleStage_800bb0f4;
 import static legend.game.Scus94491BpeSegment_800b.encounter;
 import static legend.game.Scus94491BpeSegment_800b.equipmentOverflow;
+import static legend.game.Scus94491BpeSegment_800b.gameState_800babc8;
 import static legend.game.Scus94491BpeSegment_800b.itemOverflow;
 import static legend.game.combat.SBtld.startEncounter;
 import static legend.game.combat.SBtld.startLegacyEncounter;
@@ -133,7 +137,18 @@ public class GameVarParam extends Param {
       case 59 -> ((Battle)currentEngineState_8004dd04).currentTurnBent_800c66c8 != null ? ((Battle)currentEngineState_8004dd04).currentTurnBent_800c66c8.index : -1;
       case 60 -> Scus94491BpeSegment_800b.goldGainedFromCombat_800bc920;
       case 61 -> Scus94491BpeSegment_800b.totalXpFromCombat_800bc95c;
+      case 62 -> gameState_800babc8.charData_32c.size();
+      case 63 -> {
+        final IntList chars = ((SMap)currentEngineState_8004dd04).primaryPartyBackup;
 
+        if(chars.isEmpty()) {
+          yield -1;
+        }
+
+        final int index = chars.getInt(0);
+        chars.removeInt(0);
+        yield index;
+      }
       case 64 -> ((SMap)currentEngineState_8004dd04).sobjs_800c6880[0].index;
       case 65 -> ((SMap)currentEngineState_8004dd04).submapControllerState_800c6740.index;
       case 66 -> ((SMap)currentEngineState_8004dd04).submap.objects.size();
@@ -281,6 +296,7 @@ public class GameVarParam extends Param {
       case 60 -> Scus94491BpeSegment_800b.goldGainedFromCombat_800bc920 = val;
       case 61 -> Scus94491BpeSegment_800b.totalXpFromCombat_800bc95c = val;
 
+      case 63 -> ((SMap)currentEngineState_8004dd04).primaryPartyBackup.add(val);
       case 64 -> ((SMap)currentEngineState_8004dd04).sobjs_800c6880[0] = SCRIPTS.getState(val, SubmapObject210.class);
       case 65 -> ((SMap)currentEngineState_8004dd04).submapControllerState_800c6740 = SCRIPTS.getState(val, ScriptedObject.class);
 //      case 66 -> ((SMap)currentEngineState_8004dd04).sobjCount_800c6730 = val;
@@ -319,15 +335,15 @@ public class GameVarParam extends Param {
       case 112 -> Scus94491BpeSegment_800b.gameState_800babc8.wmapFlags_15c.setRaw(0, val);
       case 113 -> Scus94491BpeSegment_800b.gameState_800babc8.visitedLocations_17c.setRaw(0, val);
       case 114 -> Scus94491BpeSegment_800b.gameState_800babc8.goods_19c.unpack(0, val);
-      case 115 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(0).partyFlags_04 = val;
-      case 116 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(1).partyFlags_04 = val;
-      case 117 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(2).partyFlags_04 = val;
-      case 118 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(3).partyFlags_04 = val;
-      case 119 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(4).partyFlags_04 = val;
-      case 120 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(5).partyFlags_04 = val;
-      case 121 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(6).partyFlags_04 = val;
-      case 122 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(7).partyFlags_04 = val;
-      case 123 -> Scus94491BpeSegment_800b.gameState_800babc8.charData_32c.get(8).partyFlags_04 = val;
+      case 115 -> this.setPartyFlags(0, val);
+      case 116 -> this.setPartyFlags(1, val);
+      case 117 -> this.setPartyFlags(2, val);
+      case 118 -> this.setPartyFlags(3, val);
+      case 119 -> this.setPartyFlags(4, val);
+      case 120 -> this.setPartyFlags(5, val);
+      case 121 -> this.setPartyFlags(6, val);
+      case 122 -> this.setPartyFlags(7, val);
+      case 123 -> this.setPartyFlags(8, val);
       case 124 -> Scus94491BpeSegment_8005.standingInSavePoint_8005a368 = val != 0;
       case 125 -> SItem.shopId_8007a3b4 = LodMod.id(LodMod.SHOP_IDS[val]);
       case 126 -> Scus94491BpeSegment_800b.gameState_800babc8._1a4[0] = val;
@@ -347,6 +363,11 @@ public class GameVarParam extends Param {
     }
 
     return this;
+  }
+
+  private void setPartyFlags(final int index, final int flags) {
+    final PartyFlagsChangeEvent event = EVENTS.postEvent(new PartyFlagsChangeEvent(gameState_800babc8, index, flags));
+    gameState_800babc8.charData_32c.get(event.characterIndex).partyFlags_04 = event.partyFlags;
   }
 
   @Override

@@ -37,6 +37,8 @@ import legend.game.characters.VitalsStatType;
 import legend.game.combat.bent.BattleEntity27c;
 import legend.game.combat.bent.BattleEntityType;
 import legend.game.combat.bent.BattleEntityTypeRegistryEvent;
+import legend.game.combat.bent.ElementIconRegistryEvent;
+import legend.game.combat.bent.ElementIcon;
 import legend.game.combat.bent.MonsterBattleEntity;
 import legend.game.combat.bent.PlayerBattleEntity;
 import legend.game.combat.deff.RegisterDeffsEvent;
@@ -90,6 +92,7 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
@@ -183,6 +186,18 @@ public class LodMod {
   public static final RegistryDelegate<Element> LIGHT_ELEMENT = ELEMENT_REGISTRAR.register("light", LightElement::new);
   public static final RegistryDelegate<Element> WIND_ELEMENT = ELEMENT_REGISTRAR.register("wind", WindElement::new);
   public static final RegistryDelegate<Element> FIRE_ELEMENT = ELEMENT_REGISTRAR.register("fire", FireElement::new);
+
+  private static final Registrar<ElementIcon, ElementIconRegistryEvent> ELEMENT_ICONS_REGISTRAR = new Registrar<>(REGISTRIES.elementIcons, MOD_ID);
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_NO_ELEMENT = ELEMENT_ICONS_REGISTRAR.register("none", () -> new ElementIcon((Path.of("gfx", "ui", "magic.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_PHYSICAL = ELEMENT_ICONS_REGISTRAR.register("physical", () -> new ElementIcon((Path.of("gfx", "ui", "physical.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_WATER = ELEMENT_ICONS_REGISTRAR.register("water", () -> new ElementIcon((Path.of("gfx", "ui", "water.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_EARTH = ELEMENT_ICONS_REGISTRAR.register("earth", () -> new ElementIcon((Path.of("gfx", "ui", "earth.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_DARK = ELEMENT_ICONS_REGISTRAR.register("dark", () -> new ElementIcon((Path.of("gfx", "ui", "dark.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_DIVINE = ELEMENT_ICONS_REGISTRAR.register("divine", () -> new ElementIcon((Path.of("gfx", "ui", "divine.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_THUNDER = ELEMENT_ICONS_REGISTRAR.register("thunder", () -> new ElementIcon((Path.of("gfx", "ui", "thunder.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_LIGHT = ELEMENT_ICONS_REGISTRAR.register("light", () -> new ElementIcon((Path.of("gfx", "ui", "light.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_WIND = ELEMENT_ICONS_REGISTRAR.register("wind", () -> new ElementIcon((Path.of("gfx", "ui", "wind.png"))));
+  public static final RegistryDelegate<ElementIcon> ELEMENT_ICON_FIRE = ELEMENT_ICONS_REGISTRAR.register("fire", () -> new ElementIcon((Path.of("gfx", "ui", "fire.png"))));
 
   private static final Registrar<BattleEntityType, BattleEntityTypeRegistryEvent> BENT_TYPE_REGISTRAR = new Registrar<>(REGISTRIES.battleEntityTypes, MOD_ID);
   public static final RegistryDelegate<BattleEntityType> PLAYER_TYPE = BENT_TYPE_REGISTRAR.register("player", BattleEntityType::new);
@@ -452,6 +467,11 @@ public class LodMod {
   }
 
   @EventListener
+  public static void registerElementIcons(final ElementIconRegistryEvent event) {
+    ELEMENT_ICONS_REGISTRAR.registryEvent(event);
+  }
+
+  @EventListener
   public static void registerBentTypes(final BattleEntityTypeRegistryEvent event) {
     BENT_TYPE_REGISTRAR.registryEvent(event);
   }
@@ -655,7 +675,7 @@ public class LodMod {
     event.add(LodCharacterTemplates.ROSE.get(), EquipmentTypes.ROSE, EquipmentTypes.SHORTSWORD, EquipmentTypes.NEUTRAL, EquipmentTypes.FEMALE, EquipmentTypes.ADDITIONS, EquipmentTypes.MEDIUM);
     event.add(LodCharacterTemplates.HASCHEL.get(), EquipmentTypes.HASCHEL, EquipmentTypes.HAND, EquipmentTypes.NEUTRAL, EquipmentTypes.MALE, EquipmentTypes.ADDITIONS);
     event.add(LodCharacterTemplates.ALBERT.get(), EquipmentTypes.ALBERT, EquipmentTypes.POLEARM, EquipmentTypes.NEUTRAL, EquipmentTypes.MALE, EquipmentTypes.ADDITIONS, EquipmentTypes.HEAVY, EquipmentTypes.ARMOR_OF_YORE);
-    event.add(LodCharacterTemplates.MERU.get(), EquipmentTypes.MERU, EquipmentTypes.HAMMER, EquipmentTypes.NEUTRAL, EquipmentTypes.FEMALE, EquipmentTypes.ADDITIONS);
+    event.add(LodCharacterTemplates.MERU.get(), EquipmentTypes.MERU, EquipmentTypes.HAMMER, EquipmentTypes.NEUTRAL, EquipmentTypes.FEMALE, EquipmentTypes.ADDITIONS, EquipmentTypes.LIGHT);
     event.add(LodCharacterTemplates.KONGOL.get(), EquipmentTypes.KONGOL, EquipmentTypes.AXE, EquipmentTypes.NEUTRAL, EquipmentTypes.MALE, EquipmentTypes.ADDITIONS, EquipmentTypes.ARMOR_OF_YORE);
     event.add(LodCharacterTemplates.MIRANDA.get(), EquipmentTypes.MIRANDA, EquipmentTypes.BOW, EquipmentTypes.NEUTRAL, EquipmentTypes.FEMALE, EquipmentTypes.MEDIUM, EquipmentTypes.LIGHT);
   }
@@ -855,7 +875,7 @@ public class LodMod {
   @EventListener
   public static void registerAtlasIcons(final RegisterAtlasTexturesEvent event) {
     // Dragoon spirit icons
-    final List<FileData> files = Loader.loadDirectory("SECT/DRGN0.BIN/4113");
+    final List<FileData> files = Loader.loadDirectorySync("SECT/DRGN0.BIN/4113");
     final Tim tim0 = new Tim(files.get(0));
     final Tim tim5 = new Tim(files.get(5));
     final VramTextureSingle tex = VramTextureLoader.textureFromTim(tim0);

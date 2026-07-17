@@ -28,6 +28,7 @@ import legend.lodmod.LodSpells;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static legend.core.GameEngine.getTextureAtlas;
@@ -71,12 +72,10 @@ public class DartTemplate extends RetailCharacterTemplate {
 
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
-    Loader.loadFiles(onLoad,
-      "sobj/Dart (no soles)/model",
-      "sobj/Dart (no soles)/textures/6c8471b353c78f8b",
-      "sobj/Dart (no soles)/animations/c0628640ed07a7ea",
-      "sobj/Dart (no soles)/animations/bf64f4ab30e18dcd",
-      "sobj/Dart (no soles)/animations/b452598588123940");
+    Loader
+      .loadFiles("SECT/DRGN22.BIN/836/264", "SECT/DRGN22.BIN/836/textures/8", "SECT/DRGN22.BIN/836/265", "SECT/DRGN22.BIN/836/266", "SECT/DRGN22.BIN/836/267")
+      .thenAccept(onLoad)
+    ;
   }
 
   @Override
@@ -288,7 +287,7 @@ public class DartTemplate extends RetailCharacterTemplate {
   }
 
   @Override
-  public void loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent, final Consumer<List<FileData>> onLoad) {
+  public CompletableFuture<List<FileData>> loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent) {
     final int fileIndex;
     if(!gameState_800babc8.goods_19c.has(DIVINE_DRAGOON_SPIRIT)) {
       fileIndex = 4103;
@@ -296,7 +295,7 @@ public class DartTemplate extends RetailCharacterTemplate {
       fileIndex = 4112;
     }
 
-    loadDrgnDir(0, fileIndex, onLoad);
+    return loadDrgnDir(0, fileIndex);
   }
 
   @Override

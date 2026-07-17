@@ -24,6 +24,7 @@ import legend.lodmod.LodSpells;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static legend.game.DrgnFiles.loadDrgnDir;
@@ -60,12 +61,10 @@ public class MeruTemplate extends RetailCharacterTemplate {
 
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
-    Loader.loadFiles(onLoad,
-      "sobj/610b5b9c074cf34a/model",
-      "sobj/610b5b9c074cf34a/textures/458581378db6b3d9",
-      "sobj/610b5b9c074cf34a/animations/24f3a7633d02a542",
-      "sobj/610b5b9c074cf34a/animations/ea1fd19a0a8029a6",
-      "sobj/610b5b9c074cf34a/animations/bd7d4cb794513158");
+    Loader
+      .loadFiles("SECT/DRGN22.BIN/836/66", "SECT/DRGN22.BIN/836/textures/2", "SECT/DRGN22.BIN/836/67", "SECT/DRGN22.BIN/836/68", "SECT/DRGN22.BIN/836/69")
+      .thenAccept(onLoad)
+    ;
   }
 
   @Override
@@ -196,8 +195,8 @@ public class MeruTemplate extends RetailCharacterTemplate {
   }
 
   @Override
-  public void loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent, final Consumer<List<FileData>> onLoad) {
-    loadDrgnDir(0, 4109, onLoad);
+  public CompletableFuture<List<FileData>> loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent) {
+    return loadDrgnDir(0, 4109);
   }
 
   @Override

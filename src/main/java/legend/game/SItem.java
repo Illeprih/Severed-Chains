@@ -225,7 +225,7 @@ public final class SItem {
     "Mortal Dr Mt.", "", "Kashua Glacier", "Flanvel Tower", "Snowfield",
     "Fort Magrad", "Vellweb", "", "Death Frontier", "Ulara",
     "Zenebatos", "Mayfil", "", "Rouge", "Aglis",
-    "Divine Tree", "Moon",
+    "Divine Tree", "Moon", "Intro Forest", "",
   };
   public static final String[] worldMapNames_8011c1ec = {
     "So. of Serdio",
@@ -237,6 +237,24 @@ public final class SItem {
     "Death Frontier",
     "Endiness",
   };
+
+  @ScriptDescription("Checks if an InputAction was pressed this frame")
+  @ScriptParam(direction = ScriptParam.Direction.IN, type = ScriptParam.Type.REG, name = "inputActionId")
+  @ScriptParam(direction = ScriptParam.Direction.OUT, type = ScriptParam.Type.BOOL, name = "pressed")
+  public static FlowControl scriptInputActionPressed(final RunningScript<?> script) {
+    final RegistryId inputActionId = script.params_20[0].getRegistryId();
+    script.params_20[1].set(PLATFORM.isActionPressed(REGISTRIES.inputActions.getEntry(inputActionId).get()));
+    return FlowControl.CONTINUE;
+  }
+
+  @ScriptDescription("Checks if an InputAction is held")
+  @ScriptParam(direction = ScriptParam.Direction.IN, type = ScriptParam.Type.REG, name = "inputActionId")
+  @ScriptParam(direction = ScriptParam.Direction.OUT, type = ScriptParam.Type.BOOL, name = "held")
+  public static FlowControl scriptInputActionHeld(final RunningScript<?> script) {
+    final RegistryId inputActionId = script.params_20[0].getRegistryId();
+    script.params_20[1].set(PLATFORM.isActionHeld(REGISTRIES.inputActions.getEntry(inputActionId).get()));
+    return FlowControl.CONTINUE;
+  }
 
   @ScriptDescription("Gets the maximum number of items a player can carry")
   @ScriptParam(direction = ScriptParam.Direction.OUT, type = ScriptParam.Type.INT, name = "size")
@@ -722,7 +740,7 @@ public final class SItem {
   public static void loadMenuAssets() {
     loadDrgnFileSync(0, 6665, data -> menuAssetsLoaded(data, 0));
     loadDrgnFileSync(0, 6666, data -> menuAssetsLoaded(data, 1));
-    loadDrgnDir(0, 5815, SItem::menuMusicLoaded);
+    loadDrgnDir(0, 5815).thenAccept(SItem::menuMusicLoaded);
   }
 
   @Method(0x800fc944L)

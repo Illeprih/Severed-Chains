@@ -24,6 +24,7 @@ import legend.lodmod.LodSpells;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static legend.game.DrgnFiles.loadDrgnDir;
@@ -61,12 +62,10 @@ public class HaschelTemplate extends RetailCharacterTemplate {
 
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
-    Loader.loadFiles(onLoad,
-      "sobj/Haschel 2/model",
-      "sobj/Haschel 2/textures/c4eb40bd994f14ba",
-      "sobj/Haschel 2/animations/e9c53c9ffcb022f6",
-      "sobj/Haschel 2/animations/290919f31485c53f",
-      "sobj/Haschel 2/animations/c79d205a634c9503");
+    Loader
+      .loadFiles("SECT/DRGN22.BIN/836/165", "SECT/DRGN22.BIN/836/textures/5", "SECT/DRGN22.BIN/836/166", "SECT/DRGN22.BIN/836/167", "SECT/DRGN22.BIN/836/168")
+      .thenAccept(onLoad)
+    ;
   }
 
   @Override
@@ -197,8 +196,8 @@ public class HaschelTemplate extends RetailCharacterTemplate {
   }
 
   @Override
-  public void loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent, final Consumer<List<FileData>> onLoad) {
-    loadDrgnDir(0, 4107, onLoad);
+  public CompletableFuture<List<FileData>> loadDragoonAttackAnimations(final CharacterData2c character, final PlayerBattleEntity bent) {
+    return loadDrgnDir(0, 4107);
   }
 
   @Override
