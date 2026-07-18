@@ -73,7 +73,7 @@ public class DartTemplate extends RetailCharacterTemplate {
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
     Loader
-      .loadFiles("SECT/DRGN22.BIN/836/264", "SECT/DRGN22.BIN/836/textures/8", "SECT/DRGN22.BIN/836/265", "SECT/DRGN22.BIN/836/266", "SECT/DRGN22.BIN/836/267")
+      .loadFiles("sobj/Dart/model", "sobj/Dart/textures/e83c77774de1b2d6", "sobj/Dart/animations/c0628640ed07a7ea", "sobj/Dart/animations/bf64f4ab30e18dcd", "sobj/Dart/animations/b452598588123940")
       .thenAccept(onLoad)
     ;
   }

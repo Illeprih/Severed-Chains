@@ -1,8 +1,8 @@
-2318c28acc7d59ef	=	Dart (close up)
-cde376968929e010	=	Dart (no soles)
-8b0b1d7e962202d7	=	Dart (soles 1)
-3558c02f033d9b6f	=	Dart (soles 2)
-764413ff02d111fe	=	Dart (soles 3)
+8b0b1d7e962202d7	=	Dart
+2318c28acc7d59ef	=	Dart_2
+cde376968929e010	=	Dart_3
+764413ff02d111fe	=	Dart_4
+3558c02f033d9b6f	=	Dart_5
 4955be1442c53f4e	=	Dart (also Feyrbrand scene?)
 2d17b98b32afc6f2	=	Dart (running from Feyrbrand)
 25d4447842f22185	=	Dart (running from Feyrbrand 2)
@@ -18,58 +18,64 @@ e26538a81502b693	=	Dart (beta
 f25636d4cdb9380c	=	Dart and Shana (mounted Hellena escape)
 
 2daa60764ae0a13a	=	Lavitz
-118127e115867c2e	=	Lavitz 2
+118127e115867c2e	=	Lavitz_2
 
-9e365762aa7be500	=	Shana
-87a6063f04ef20c4	=	Shana 2
-fbe2b0112413a8e6	=	Shana 3
-3505a7a62bed0f4c	=	Shana 4
-af326ecb8d1397c4	=	Shana 5
+27ffb00e0bcaf55d  = Shana
+fb81e318a082f58d  = Shana_2
+fbe2b0112413a8e6	=	Shana_3
+af326ecb8d1397c4	=	Shana_4
+87a6063f04ef20c4	=	Shana_5
+3505a7a62bed0f4c	=	Shana_6
+9e365762aa7be500	=	Shana_cutscene
 9fc0bbb17badd24b	=	Shana (child)
 9120fe7a3cc11a47	=	Shana 2d (curled up)
 
-d0ca9c218e8bbaa8	=	Rose (High-res?)
-d370c61b04feccd4	=	Rose (Mid-res?)
-e7996e5b153382e2	=	Rose (Low-res?)
-faab05ac76cb16d1	=	Rose 4
-528cc47bcc55ac1d	=	Rose 5
-410cc35cadfa0da6	=	Rose 6
+410cc35cadfa0da6	=	Rose
+faab05ac76cb16d1	=	Rose_2
+e7996e5b153382e2	=	Rose_3
+528cc47bcc55ac1d	=	Rose_4
+d0ca9c218e8bbaa8	=	Rose_cutscene
+d370c61b04feccd4	=	Rose_cutscene_2
 7ef35313566f3e8b	=	Rose Dragoon
 00173c4d0979ebbf	=	Rose and Dart falling
 
-3f0d42bf15e02f5d	=	Haschel
-49d0132c58b16217	=	Haschel 2
-9465dcebb71d9476	=	Haschel 3
-aa61bcf1121b184a	=	Haschel 4
-d5833ecd66a888e3	=	Haschel (some cutscene)
+ed0d3f455d6a25ce  = Haschel
+aa61bcf1121b184a	=	Haschel_2
+d5833ecd66a888e3	=	Haschel_3
+49d0132c58b16217	=	Haschel_4
+3f0d42bf15e02f5d	=	Haschel_5
+9465dcebb71d9476	=	Haschel_6
 52f743343013d3d1	=	Haschel and Gehrich
 
 5db1b2d4eee8485d	=	Albert
-f2fc0aeb8a2b2c11	=	Albert 2
-44817daeff087352	=	Albert 3
-afc47eea48747922	=	Albert 4
-c4ed3e0a782ef6ed	=	Albert 5
+afc47eea48747922	=	Albert_2
+f2fc0aeb8a2b2c11	=	Albert_3
+c4ed3e0a782ef6ed	=	Albert_4
+44817daeff087352	=	Albert_cutscene
 9d5f59959da80af2	=	Albert (captured)
 
 7e44e1f10695254c	=	Meru
-daf97eccc6084aa8	=	Meru 2
-986c7dcadee87e5d	=	Meru 3
-610b5b9c074cf34a	=	Meru 4
-c1eb6a95b143ffd7	=	Meru 5
+986c7dcadee87e5d	=	Meru_2
+daf97eccc6084aa8	=	Meru_3
+610b5b9c074cf34a	=	Meru_4
+55c06ad7dd73c1fd  = Meru_5
+c1eb6a95b143ffd7	=	Meru_6
 4351b6b6fa274d0		=	Meru (with hammer)
 8f611ab5872306e6	=	Meru (Wingly wings)
 
-f9c48b9a745a6c94	=	Kongol
+ec7567dde8298aa2  = Kongol
+719f38520d6b94bf  = Kongol_2
+f9c48b9a745a6c94	=	Kongol_3
 c7eafdb8685f8d3c	=	Kongol (with Axe)
 f066e831709b3617	=	Kongol 2d
 fe68c4a41f7881e6	=	Kongol (child)
 20381f27cab8fd36	=	Kongol (Black Castle)
 
-3ca6e705c06299f7	=	Miranda
-005a2b32ffa4b0f5	=	Miranda 2
-6f54a9e7b320dc31	=	Miranda 3
-7d9aaf9ec7ed9bfc	=	Miranda 4
-1207cce034994961	=	Miranda 5
+1207cce034994961	=	Miranda
+7d9aaf9ec7ed9bfc	=	Miranda_2
+005a2b32ffa4b0f5	=	Miranda_3
+3ca6e705c06299f7	=	Miranda_4
+6f54a9e7b320dc31	=	Miranda_cutscene
 
 38c2b0d765c89480	=	Coolon
 
