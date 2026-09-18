@@ -1,5 +1,6 @@
 package legend.game.unpacker;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import legend.core.Config;
 import legend.core.DebugHelper;
 import legend.core.IoHelper;
@@ -8,6 +9,8 @@ import legend.core.Tuple;
 import legend.core.audio.xa.XaTranscoder;
 import legend.game.Scus94491BpeSegment;
 import legend.game.i18n.I18n;
+import legend.game.unpacker.sobj.CardboardReplacer;
+import legend.game.unpacker.sobj.SobjTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -122,13 +125,17 @@ public final class Unpacker {
     // Convert submap PXLs into individual TIMs
     postTransformers.add(new BranchTransformation("Submap PXL converter", SubmapPxlTransformer::transform));
 
-    postTransformers.add(new BranchTransformation("Claire model fixer", Unpacker::replaceBrokenClaireModel));
+    postTransformers.add(new BranchTransformation("Submap asset deduplicator", SobjTransformer::transform));
   }
 
   private static final List<Replacement> replacements = new ArrayList<>();
   static {
+    final Long2ObjectMap<String> namer = SobjTransformer.initNamer();
+
     // Guy in Bale library with face/chest swapped
-    replacements.add(new Replacement("Replace Chester texture", Unpacker::drgn21_260_textures_4_chesterTextureReplacementPatcher));
+    replacements.add(new Replacement("Replace Chester texture", (root, transformations, flags) -> drgn21_260_textures_4_chesterTextureReplacementPatcher(root, transformations, flags, namer)));
+
+    replacements.addAll(CardboardReplacer.get2dReplacements(namer));
   }
 
   private static Consumer<String> statusListener = status -> { };
@@ -612,7 +619,7 @@ public final class Unpacker {
 
     i = 0;
     for(final MrgArchive.Entry entry : archive) {
-      map.addFile(Integer.toString(i), Integer.toString(entry.virtual() ? entry.parent() : i), entry.virtualSize());
+      map.addFile(i, entry.virtual(), entry.virtual() ? entry.parent() : i, entry.virtualSize());
       i++;
     }
 
@@ -832,7 +839,18 @@ public final class Unpacker {
   /**
    * Man in the Bale library with face/chest swapped
    */
-  private static void drgn21_260_textures_4_chesterTextureReplacementPatcher(final PathNode root, final Transformations transformations, final Set<String> flags) {
+  private static void drgn21_260_textures_4_chesterTextureReplacementPatcher(final PathNode root, final Transformations transformations, final Set<String> flags, final Long2ObjectMap<String> namer) {
+    final PathNode sobj = root.children.get("sobj");
+
+    if(sobj != null) {
+      final PathNode chester = sobj.children.get(namer.getOrDefault(0xec895499aa68078aL, String.format("%016x", 0xec895499aa68078aL)));
+
+      if(chester != null) {
+        transformations.replaceWithFile(chester.children.get("textures").children.get(namer.getOrDefault(0x55c85597ba28c221L, String.format("%016x", 0x55c85597ba28c221L))), REPLACEMENTS.resolve("chester.tim"));
+      }
+    }
+
+
     final PathNode sect = root.children.get("SECT");
 
     if(sect != null) {

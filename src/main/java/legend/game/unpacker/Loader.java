@@ -2,6 +2,10 @@ package legend.game.unpacker;
 
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import legend.core.Async;
 import legend.core.DebugHelper;
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +30,7 @@ public final class Loader {
   private static final Logger LOGGER = LogManager.getFormatterLogger(Loader.class);
 
   private static final Pattern MRG_ENTRY = Pattern.compile("[=;]");
+  private static final Path FILES = Path.of(".", "files").normalize();
 
   private static final AtomicInteger LOADING_COUNT = new AtomicInteger();
 
@@ -167,8 +172,8 @@ public final class Loader {
 
     if(Files.exists(mrg)) {
       try(final BufferedReader reader = Files.newBufferedReader(mrg)) {
-        final Int2IntMap fileMap = new Int2IntArrayMap();
-        final Int2IntMap virtualSizeMap = new Int2IntArrayMap();
+        final Int2ObjectMap<FileData> realFiles = new Int2ObjectArrayMap<>();
+        final Int2IntMap virtualFiles = new Int2IntArrayMap();
 
         reader.lines().forEach(line -> {
           final String[] parts = MRG_ENTRY.split(line);
@@ -177,70 +182,65 @@ public final class Loader {
             throw new RuntimeException("Invalid MRG entry! " + line);
           }
 
-          final int virtual = Integer.parseInt(parts[0]);
+          final int currentIndex = Integer.parseInt(parts[0]);
+          final String rawPath = parts[1];
+          final int size = Integer.parseInt(parts[2]);
 
-          // Indicates no file
-          if(parts[1].isBlank()) {
-            fileMap.put(virtual, -1);
-            virtualSizeMap.put(virtual, 0);
+          if(rawPath.isBlank()) {
             return;
           }
 
-          final int real = Integer.parseInt(parts[1]);
-          fileMap.put(virtual, real);
-          virtualSizeMap.put(virtual, Integer.parseInt(parts[2]));
-        });
+          if(rawPath.startsWith("@")) {
+            virtualFiles.put(currentIndex, Integer.parseInt(rawPath.substring(1)));
+            return;
+          }
 
-        final List<FileData> files = new ArrayList<>();
+          final Path resolved = rawPath.startsWith("/")
+            ? FILES.resolve(rawPath.substring(1))
+            : dir.resolve(rawPath);
 
-        // Add real files
-        for(final var entry : fileMap.int2IntEntrySet()) {
-          final int virtual = entry.getIntKey();
-          final int real = entry.getIntValue();
+          final Path normalized = resolved.normalize();
 
-          // No file
-          if(real == -1) {
-            files.add(null);
-            continue;
+          if(!normalized.startsWith(FILES)) {
+            throw new RuntimeException("MRG path escapes the files directory! " + rawPath);
           }
 
           try {
-            final Path file = dir.resolve(String.valueOf(real));
-            if(Files.isRegularFile(file)) {
-              if(virtual == real) {
-                files.add(new FileData(Files.readAllBytes(file)));
-              } else {
-                files.add(null);
-              }
-            } else if(Files.isDirectory(file)) {
-              files.add(new FileData(new byte[0]));
+            if(Files.isRegularFile(normalized)) {
+              realFiles.put(currentIndex, new FileData(Files.readAllBytes(normalized)));
+            } else if(Files.isDirectory(normalized)) {
+              realFiles.put(currentIndex, new FileData(new byte[0]));
+            } else {
+              throw new RuntimeException("MRG entry is not a file or directory! " + normalized);
             }
           } catch(final IOException e) {
-            throw new RuntimeException("Failed to load directory " + dir, e);
+            throw new RuntimeException("Failed to load REF file " + normalized, e);
+          }
+        });
+
+        int maxKey = -1;
+
+        for(final int key: realFiles.keySet()) {
+          maxKey = Math.max(maxKey, key);
+        }
+
+        for(final int key : virtualFiles.keySet()) {
+          maxKey = Math.max(maxKey, key);
+        }
+
+        final FileData[] files = new FileData[maxKey + 1];
+
+        for(int i = 0; i < files.length; i++) {
+          if(realFiles.containsKey(i)) {
+            files[i] = realFiles.get(i);
+          } else if(virtualFiles.containsKey(i)) {
+            final int fileIndex = virtualFiles.get(i);
+
+            files[i] = FileData.virtual(realFiles.get(fileIndex), 0, fileIndex);
           }
         }
 
-        // Add virtual files
-        for(final var entry : fileMap.int2IntEntrySet()) {
-          final int virtual = entry.getIntKey();
-          int real = entry.getIntValue();
-
-          if(virtual == real || real == -1) {
-            continue;
-          }
-
-          // Resolve to the realest file
-          while(fileMap.get(real) != real) {
-            real = fileMap.get(real);
-          }
-
-          final Path file = dir.resolve(String.valueOf(real));
-          if(Files.isRegularFile(file)) {
-            files.set(virtual, FileData.virtual(files.get(real), virtualSizeMap.get(virtual), real));
-          }
-        }
-
-        return files;
+        return Arrays.stream(files).toList();
       } catch(final IOException e) {
         throw new RuntimeException("Failed to load directory " + dir, e);
       }

@@ -1,0 +1,156 @@
+8b0b1d7e962202d7  = Dart
+2318c28acc7d59ef  = Dart_2
+cde376968929e010  = Dart_3
+764413ff02d111fe  = Dart_4
+3558c02f033d9b6f  = Dart_5
+
+2daa60764ae0a13a  = Lavitz
+118127e115867c2e  = Lavitz_2
+
+27ffb00e0bcaf55d  = Shana
+fb81e318a082f58d  = Shana_2
+fbe2b0112413a8e6  = Shana_3
+af326ecb8d1397c4  = Shana_4
+87a6063f04ef20c4  = Shana_5
+3505a7a62bed0f4c  = Shana_6
+
+410cc35cadfa0da6  = Rose
+faab05ac76cb16d1  = Rose_2
+e7996e5b153382e2  = Rose_3
+528cc47bcc55ac1d  = Rose_4
+d0ca9c218e8bbaa8  = Rose_cutscene
+d370c61b04feccd4  = Rose_cutscene_2
+
+ed0d3f455d6a25ce  = Haschel
+aa61bcf1121b184a  = Haschel_2
+d5833ecd66a888e3  = Haschel_3
+49d0132c58b16217  = Haschel_4
+3f0d42bf15e02f5d  = Haschel_5
+9465dcebb71d9476  = Haschel_6
+
+5db1b2d4eee8485d  = Albert
+afc47eea48747922  = Albert_2
+f2fc0aeb8a2b2c11  = Albert_3
+c4ed3e0a782ef6ed  = Albert_4
+
+7e44e1f10695254c  = Meru
+986c7dcadee87e5d  = Meru_2
+daf97eccc6084aa8  = Meru_3
+610b5b9c074cf34a  = Meru_4
+55c06ad7dd73c1fd  = Meru_5
+c1eb6a95b143ffd7  = Meru_6
+
+ec7567dde8298aa2  = Kongol
+719f38520d6b94bf  = Kongol_2
+f9c48b9a745a6c94  = Kongol_3
+f066e831709b3617  = Kongol_2d
+cb7104d5ab671fd6  = Standing_still
+1a1a204d982309fe  = Walking
+f9e1f28bbb9d3519  = Running
+1b2b13908edb2c9f  = Cross_arms
+c02b7b3b60ab32b3  = Interaction
+c63c6972e8dc9954  = Yes
+51201e07b486f272  = No
+923afc8ce4cad9cd  = Uncross_arms
+0d0b9b87b1b909a8  = Idle
+
+1207cce034994961  = Miranda
+7d9aaf9ec7ed9bfc  = Miranda_2
+005a2b32ffa4b0f5  = Miranda_3
+3ca6e705c06299f7  = Miranda_4
+
+e65b47b0553f28dc  = Tiberoa_NPC_Blue_shorts_2d
+e1c5eee77857cf91  = Tiberoa_NPC_Blue_shorts
+8f705ecca0d34e98  = Standing_still
+e50ce04cc0dd0c87  = Walking
+c515338fd8ecccdb  = Running
+7089b0a5a42191dd  = Interaction
+
+af439b1096a13215  = Tiberoa_NPC_White_shorts
+f5b925eae8da7020  = Standing_still
+f8d7afe65e120d33  = Walking
+c515338fd8ecccdb  = Running
+7572fc71759fea3d  = Interaction
+
+9aae80c3c65b4f43  = Tiberoa_NPC_Green_shorts
+f5b925eae8da7020  = Standing_still
+f8d7afe65e120d33  = Walking
+7572fc71759fea3d  = Interaction
+
+a009a57beb1fd945  = Tiberoa_NPC_Young_blue_dress
+63191b4f5422377e  = Standing_still
+eac3bade14ca605a  = Walking
+60bd2abacbae7913  = Interaction
+
+afc6ce67cbade974  = Tiberoa_NPC_Young_beige_dress
+6a9fc77cfe8bff71  = Standing_still
+14cbc061d3acdd0d  = Walking
+158aebdc3e44b7f4  = Running
+07254ced4629dd02  = Interaction
+
+9be57a3c152511b8  = Tiberoa_NPC_Young_green_dress
+6a9fc77cfe8bff71  = Standing_still
+14cbc061d3acdd0d  = Walking
+07254ced4629dd02  = Interaction
+
+db157481f59325f1  = Tiberoa_NPC_Blue_dress_2d
+7368841395eef392  = Tiberoa_NPC_Blue_dress
+ffc5225ab65e1820  = Standing_still
+052589f12db92391  = Interaction
+
+c79476fcde288d62  = Tiberoa_NPC_Orange_dress_2d
+b595ecb662023356  = Tiberoa_NPC_Orange_dress
+de4529dbb384ffb3  = Standing_still
+f020b11bd8b7bde0  = Walking
+40e968652ac08de6  = Running
+eb9ae41f4c219a46  = Interaction
+
+e02a94a4312f640b  = Tiberoa_NPC_Shopkeeper_2d
+fec05a2adaeea41c  = Tiberoa_NPC_Shopkeeper
+edf1bd6c2c01682a  = Standing_still
+e81977dd56bb9069  = Walking
+a554a8ae5e4e5f6d  = Interaction
+
+bd85c6029695f52d  = Tiberoa_NPC_Innkeeper_2d
+7bed628c7b769335  = Tiberoa_NPC_Innkeeper
+
+c46296ca9b55463e  = Tiberoa_NPC_Fletz_Guard_2d
+97bc21af6290806a  = Tiberoa_NPC_Fletz_Guard
+6f2ce8ef2a2a8454  = Standing_still
+a21b27b1bf1e258b  = Walking
+b8c8c749b3c4cb36  = Running
+ef730a31a30d47f9  = Interaction
+1ee9603551b51981  = Yes
+8f2a82bc7730ee69  = No
+
+cfaa59e99bb0b412  = Mille_Seseau_Merchants_2d
+589ab3447298912f  = Mille_Seseau_NPC_Old_man
+266cb682deeff373  = Standing_still
+747d403c7138def6  = Walking
+bb7ceaee47d7a0d3  = Interaction
+2b2cedd26e2a0ad7  = Yes
+7e1175c057159e09  = No
+
+7296fda88f1c17bb  = Mille_Seseau_NPC_Old_woman
+4d7b10896bef2fc3  = Standing_still
+f55fc0903e4bcb94  = Walking
+e2127cf72f5e8150  = Interaction
+e529e798b0eab0c0  = Yes
+3e8f1fc6ac04bb1a  = No
+
+d6ff223792d4849c  = Mille_Seseau_NPC_Young_woman_2d
+7753bd08e3141ef7  = Mille_Seseau_NPC_Young_woman
+dd11634e54d391d0  = Standing_still
+6dba5f7159f60545  = Walking
+666d72f135bb8edf  = Interaction
+0b01aeab0a417fea  = Yes
+a3f8d213845ca747  = No
+
+b553d6caac721f00  = Mille_Seseau_NPC_Boy_2d
+d7574d4f9a2a95bb  = Mille_Seseau_NPC_Boy
+d071a9ae267f7763  = Standing_still
+68a0b3390a27cb08  = Walking
+28e5cf460b1320db  = Running
+8b145881775c3a7f  = Interaction
+b8f1d2acf4d127f9  = Yes
+0fe7c5125d194a62  = No

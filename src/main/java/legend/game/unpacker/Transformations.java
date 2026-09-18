@@ -62,6 +62,10 @@ public class Transformations {
     this.addNode(node.fullPath, newData);
   }
 
+  public void removeNode(final PathNode node) {
+    this.addNode(node.fullPath, null);
+  }
+
   public void replaceWithFile(final PathNode node, final Path filename) {
     try {
       this.replaceNode(node, new FileData(Files.readAllBytes(filename)));

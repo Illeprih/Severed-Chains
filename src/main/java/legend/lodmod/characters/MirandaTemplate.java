@@ -75,7 +75,12 @@ public class MirandaTemplate extends ShanaTemplate {
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
     Loader
-      .loadFiles("SECT/DRGN23.BIN/116/33", "SECT/DRGN23.BIN/116/textures/1", "SECT/DRGN23.BIN/116/34", "SECT/DRGN23.BIN/116/35", "SECT/DRGN23.BIN/116/36")
+      .loadFiles(
+        "sobj/Miranda/model",
+        "sobj/Miranda/textures/8f1cd85df07dc28c",
+        "sobj/Miranda/animations/145f2ec91dd01469",
+        "sobj/Miranda/animations/556cdb006e347eb7",
+        "sobj/Miranda/animations/038becadc10ac38c")
       .thenAccept(onLoad)
     ;
   }

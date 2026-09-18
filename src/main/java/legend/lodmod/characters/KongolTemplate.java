@@ -59,7 +59,12 @@ public class KongolTemplate extends RetailCharacterTemplate {
   @Override
   public void loadWorldMapModel(final CharacterData2c character, final Consumer<List<FileData>> onLoad) {
     Loader
-      .loadFiles("SECT/DRGN22.BIN/800/66", "SECT/DRGN22.BIN/800/textures/2", "SECT/DRGN22.BIN/800/67", "SECT/DRGN22.BIN/800/68", "SECT/DRGN22.BIN/800/69")
+      .loadFiles(
+        "sobj/Kongol/model",
+        "sobj/Kongol/textures/adb56610db1d1bd6",
+        "sobj/Kongol/animations/Standing_still",
+        "sobj/Kongol/animations/Walking",
+        "sobj/Kongol_3/animations/Running")
       .thenAccept(onLoad)
     ;
   }

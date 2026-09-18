@@ -76,7 +76,7 @@ public final class SubmapPxlTransformer {
     final int sobjCount = mrg.length / 33;
     for(int sobjIndex = 0; sobjIndex < sobjCount; sobjIndex++) {
       final String mrgEntry = mrg[sobjIndex * 33];
-      final String modelFileIndex = mrgEntry.substring(mrgEntry.indexOf('=') + 1, mrgEntry.indexOf(';'));
+      final String modelFileIndex = mrgEntry.substring(mrgEntry.indexOf('=') + 1, mrgEntry.indexOf(';')).replace("@", "");
 
       if(modelFileIndex.equals(Integer.toString(sobjIndex * 33))) {
         final int textureSlot;
