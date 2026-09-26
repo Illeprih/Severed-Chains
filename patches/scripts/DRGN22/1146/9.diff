@@ -1,0 +1,31 @@
+--- original
++++ modified
+@@ -6,12 +6,23 @@
+ call 106, 0x0
+ call 111, 0x1
+ call 311, stor[0]
++call 101, stor[0], 0xffffffa3, 0x0, 0xfffffe47
++call 103, stor[0], 0x0, 0x0, 0x0
+ jmp_table stor[stor[stor[0], 23], 31], inl[:LABEL_0]
+ LABEL_0:
+ rel :JMP_44_0
+-rel :JMP_44_0
++rel :JMP_44_1
+ JMP_44_0:
+-call 101, stor[0], 0xffffffa3, 0x0, 0xfffffe47
+-call 103, stor[0], 0x0, 0x0, 0x0
+-call 309, stor[0], 0x1000, 0x1000, 0x1000
+-rewind
++mov 0x1, stor[25]
++LABEL_1:
++call 3, 0x63, stor[24]
++jmp_cmp ==, stor[24], stor[25], inl[:LABEL_2]
++yield
++jmp inl[:LABEL_1]
++LABEL_2:
++call 99, stor[25]
++mov 0x0, stor[25]
++jmp_cmp ==, stor[24], 0x1, inl[:LABEL_1]
++JMP_44_1:
++yield
++jmp inl[:JMP_44_1]
